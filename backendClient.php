@@ -13,7 +13,16 @@ class BackendClient
 
         // URL base de la API (ajustar según tu configuración)
         // La API está en /api/index.php y maneja rutas que empiezan con /api
-        $this->apiBaseUrl = 'http://localhost/AkineitorPHP/api/index.php';
+
+        // Detectar el host actual y construir la URL base dinámicamente
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
+        // Detectar si la URL actual contiene "/juego/" para decidir el prefijo
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        $basePath = strpos($requestUri, '/projecte/') === 0 ? '/projecte' : '';
+
+        $this->apiBaseUrl = $protocol . '://' . $host . $basePath . '/akineitor/api/index.php';
     }
 
     private function makeApiCall(string $endpoint, array $data = [], string $method = 'POST'): array
@@ -55,10 +64,11 @@ class BackendClient
             }
         }
 
+
         if ($httpCode >= 400) {
             $errorData = json_decode($response, true);
             $errorMessage = $errorData['error'] ?? $errorData['message'] ?? "Error HTTP $httpCode";
-            throw new RuntimeException("Error de la API ($httpCode): $errorMessage");
+            throw new RuntimeException("Error de la API $this->apiBaseUrl: $errorMessage");
         }
 
         $decodedResponse = json_decode($response, true);
