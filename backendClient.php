@@ -1,0 +1,200 @@
+<?php
+// Cliente para el backend del Akineitor
+class BackendClient
+{
+    private string $apiBaseUrl;
+
+    public function __construct()
+    {
+        // Inicializar sesión si no está activa
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // URL base de la API (ajustar según tu configuración)
+        // La API está en /api/index.php y maneja rutas que empiezan con /api
+        $this->apiBaseUrl = 'http://localhost/AkineitorPHP/api/index.php';
+    }
+
+    private function makeApiCall(string $endpoint, array $data = [], string $method = 'POST'): array
+    {
+        $url = $this->apiBaseUrl . $endpoint;
+
+        $options = [
+            'http' => [
+                'header' => [
+                    'Content-Type: application/json',
+                    'Accept: application/json'
+                ],
+                'method' => $method,
+                'timeout' => 30,
+                'ignore_errors' => true // Para capturar códigos de error HTTP
+            ]
+        ];
+
+        if ($method === 'POST' && !empty($data)) {
+            $options['http']['content'] = json_encode($data);
+        }
+
+        $context = stream_context_create($options);
+        $response = @file_get_contents($url, false, $context);
+
+        if ($response === false) {
+            $error = error_get_last();
+            throw new RuntimeException("Error al conectar con la API: $url. " . ($error['message'] ?? 'Error desconocido'));
+        }
+
+        // Verificar código de respuesta HTTP
+        $httpCode = 200;
+        if (isset($http_response_header)) {
+            foreach ($http_response_header as $header) {
+                if (preg_match('/^HTTP\/\d\.\d (\d{3})/', $header, $matches)) {
+                    $httpCode = (int) $matches[1];
+                    break;
+                }
+            }
+        }
+
+        if ($httpCode >= 400) {
+            $errorData = json_decode($response, true);
+            $errorMessage = $errorData['error'] ?? $errorData['message'] ?? "Error HTTP $httpCode";
+            throw new RuntimeException("Error de la API ($httpCode): $errorMessage");
+        }
+
+        $decodedResponse = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new RuntimeException("Error al decodificar respuesta JSON de la API: " . json_last_error_msg());
+        }
+
+        return $decodedResponse;
+    }
+
+    /**
+     * Verifica si la API está disponible
+     */
+    public function verificarConectividad(): bool
+    {
+        try {
+            $this->makeApiCall('/health', [], 'GET');
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function crearPartida(): array
+    {
+        try {
+            // Llamar a la API para crear una nueva partida (sin partida_id)
+            $response = $this->makeApiCall('/api/algorithm/step', []);
+
+            $partidaId = $response['partida_id'] ?? null;
+            $preguntaActual = $response['pregunta_actual'] ?? null;
+            $preguntasRespondidas = $response['preguntas_respondidas'] ?? 0;
+
+            if (!$partidaId || !$preguntaActual) {
+                throw new RuntimeException("Respuesta inválida de la API al crear partida");
+            }
+
+            // Convertir formato de API al formato esperado por el frontend
+            $pregunta = [
+                'id' => $preguntaActual['id'],
+                'texto' => $preguntaActual['texto']
+            ];
+
+            $progreso = [
+                'paso' => $preguntasRespondidas + 1,
+                'total' => 15 // Estimado, podría ajustarse dinámicamente
+            ];
+
+            return [
+                'partidaId' => $partidaId,
+                'pregunta' => $pregunta,
+                'progreso' => $progreso
+            ];
+        } catch (Exception $e) {
+            throw new RuntimeException("Error al crear partida: " . $e->getMessage());
+        }
+    }
+
+    public function responder(string $partidaId, array $payload): array
+    {
+        try {
+            $respuesta = $payload['respuesta'] ?? null;
+            $preguntaId = $payload['preguntaId'] ?? null;
+
+            if (!$respuesta || !$preguntaId) {
+                throw new RuntimeException("Datos de respuesta incompletos");
+            }
+
+            // Llamar a la API con la partida y respuesta
+            $apiData = [
+                'partida_id' => $partidaId,
+                'respuesta' => $respuesta
+            ];
+
+            $response = $this->makeApiCall('/api/algorithm/step', $apiData);
+
+            $esFinal = $response['es_final'] ?? false;
+            $preguntaActual = $response['pregunta_actual'] ?? null;
+            $personajesPosibles = $response['personajes_posibles'] ?? [];
+            $probabilidad = $response['probabilidad'] ?? 0;
+            $preguntasRespondidas = $response['preguntas_respondidas'] ?? 0;
+
+            if ($esFinal) {
+                // Devolver resultado final
+                $personajePrincipal = $personajesPosibles[0] ?? null;
+
+                if (!$personajePrincipal) {
+                    throw new RuntimeException("No se pudo determinar un personaje");
+                }
+
+                return [
+                    'resultado' => [
+                        'personaje' => [
+                            'id' => $personajePrincipal['id'],
+                            'nombre' => $personajePrincipal['nombre'],
+                            'imagenUrl' => null // La API no devuelve imágenes por ahora
+                        ],
+                        'confianza' => $probabilidad,
+                        'personajes_alternativos' => array_slice($personajesPosibles, 1, 4) // Hasta 4 alternativas
+                    ]
+                ];
+            } else {
+                // Devolver siguiente pregunta
+                if (!$preguntaActual) {
+                    throw new RuntimeException("No hay más preguntas disponibles");
+                }
+
+                $pregunta = [
+                    'id' => $preguntaActual['id'],
+                    'texto' => $preguntaActual['texto']
+                ];
+
+                $progreso = [
+                    'paso' => $preguntasRespondidas + 1,
+                    'total' => 15 // Estimado
+                ];
+
+                return [
+                    'pregunta' => $pregunta,
+                    'progreso' => $progreso,
+                    'personajes_posibles' => array_slice($personajesPosibles, 0, 5) // Top 5 candidatos
+                ];
+            }
+        } catch (Exception $e) {
+            throw new RuntimeException("Error al procesar respuesta: " . $e->getMessage());
+        }
+    }
+
+    public function reiniciar(string $partidaId): array
+    {
+        try {
+            // Crear una nueva partida (ignoramos el partidaId anterior)
+            return $this->crearPartida();
+        } catch (Exception $e) {
+            throw new RuntimeException("Error al reiniciar partida: " . $e->getMessage());
+        }
+    }
+}

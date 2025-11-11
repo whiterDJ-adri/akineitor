@@ -1,0 +1,577 @@
+@import "tailwindcss";
+
+:root {
+	--bg: #ffffff;
+	--card: #ffffff;
+	--muted: #666666;
+	--border: #000000;
+	--ink: #000000;
+	--primary: #000000;
+	--success: #000000;
+	--warning: #000000;
+	--danger: #000000;
+	--font-mono: "Courier New", Courier, monospace;
+	--font-sans: "Arial", "Helvetica", sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: var(--font-sans);
+	background: var(--bg);
+	margin: 0;
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	color: var(--ink);
+}
+
+.container {
+	max-width: 500px;
+	width: 100%;
+	background: var(--card);
+	border: 1px solid var(--border);
+	border-radius: 0;
+	padding: 40px;
+	box-shadow: none;
+	text-align: center;
+}
+
+h1 {
+	margin: 0 0 20px 0;
+	color: var(--primary);
+	font-size: 2.5rem;
+	font-weight: normal;
+	text-shadow: none;
+}
+
+h2 {
+	margin: 0 0 15px 0;
+	color: var(--ink);
+	font-size: 1.5rem;
+	font-weight: normal;
+}
+
+p {
+	margin: 10px 0;
+	line-height: 1.6;
+	font-weight: normal;
+}
+
+.muted {
+	color: var(--muted);
+	font-size: 0.9rem;
+}
+
+/* Estilo minimalista para las preguntas del Akineitor */
+.question {
+	background: #ffffff;
+	color: #000000;
+	padding: 20px;
+	border: 2px solid var(--border);
+	border-radius: 0;
+	margin: 20px 0;
+	font-family: var(--font-mono);
+	position: relative;
+	overflow: hidden;
+}
+
+.question::before {
+	content: "> ";
+	color: #000000;
+	font-weight: bold;
+}
+
+.question h3 {
+	color: #000000;
+	font-size: 1.2rem;
+	margin: 0;
+	font-family: var(--font-mono);
+	display: block;
+	white-space: normal;
+	word-wrap: break-word;
+	overflow: visible;
+}
+
+.question h3::after {
+	content: "_";
+	animation: blink 1s infinite;
+	color: #000000;
+	font-weight: bold;
+	margin-left: 2px;
+}
+
+/* Estilos mejorados para botones con hover visible */
+button {
+	position: relative;
+	transition: all 0.3s ease;
+	cursor: pointer;
+}
+
+button:hover {
+	transform: translateY(-2px);
+}
+
+button:active {
+	transform: translateY(0);
+}
+
+/* Efecto de borde animado en hover */
+button::after {
+	content: "";
+	position: absolute;
+	top: -4px;
+	left: -4px;
+	right: -4px;
+	bottom: -4px;
+	border: 2px solid #000000;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	pointer-events: none;
+}
+
+button:hover::after {
+	opacity: 1;
+}
+
+/* Animación de typewriter para preguntas */
+@keyframes typewriter {
+	from {
+		width: 0;
+	}
+	to {
+		width: 100%;
+	}
+}
+
+@keyframes blink {
+	50% {
+		opacity: 0;
+	}
+}
+
+/* Cursor parpadeante para el título */
+.cursor-title::after {
+	content: "_";
+	animation: blink 1s infinite;
+	color: #000000;
+	font-weight: bold;
+	margin-left: 2px;
+}
+
+/* Estilos para el contenedor de preguntas */
+#question-text {
+	display: inline;
+	word-wrap: break-word;
+	white-space: normal;
+}
+
+.text-left {
+	text-align: left !important;
+}
+
+.progress {
+	background: #f0f0f0;
+	border: 1px solid var(--border);
+	border-radius: 0;
+	height: 20px;
+	margin: 20px 0;
+	overflow: hidden;
+}
+
+.progress-bar {
+	background: var(--ink);
+	height: 100%;
+	transition: width 0.3s ease;
+}
+
+.row {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin: 25px 0;
+	justify-content: center;
+}
+
+.btn {
+	padding: 10px 20px;
+	border: 1px solid var(--border);
+	border-radius: 0;
+	background: #fff;
+	cursor: pointer;
+	font-size: 1rem;
+	font-weight: normal;
+	color: var(--ink);
+	transition: all 0.2s ease;
+	min-width: 100px;
+}
+
+.btn:hover {
+	background: var(--ink);
+	color: #fff;
+	transform: none;
+	box-shadow: none;
+}
+
+.btn-primary {
+	background: var(--ink);
+	color: #fff;
+	border-color: var(--border);
+}
+
+.btn-primary:hover {
+	background: #fff;
+	color: var(--ink);
+}
+
+.btn-success {
+	background: #fff;
+	border-color: var(--border);
+	color: var(--ink);
+}
+
+.btn-success:hover {
+	background: var(--ink);
+	color: #fff;
+}
+
+.btn-danger {
+	background: #fff;
+	border-color: var(--border);
+	color: var(--ink);
+}
+
+.btn-danger:hover {
+	background: var(--ink);
+	color: #fff;
+}
+
+.btn-warning {
+	background: #fff;
+	border-color: var(--border);
+	color: var(--ink);
+}
+
+.btn-warning:hover {
+	background: var(--ink);
+	color: #fff;
+}
+
+/* Estilo minimalista para el resultado del Akineitor */
+.result {
+	background: #ffffff;
+	color: #000000;
+	padding: 30px;
+	border: 2px solid var(--border);
+	border-radius: 0;
+	margin: 20px 0;
+	font-family: var(--font-mono);
+	position: relative;
+}
+
+.result::before {
+	content: "> RESULTADO ENCONTRADO";
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	font-size: 0.8rem;
+	color: #000000;
+	font-weight: bold;
+}
+
+.result h3 {
+	margin: 20px 0 15px 0;
+	font-size: 1.2rem;
+	color: #000000;
+	font-family: var(--font-mono);
+}
+
+.confidence {
+	font-size: 1rem;
+	font-weight: normal;
+	margin: 10px 0;
+	font-family: var(--font-mono);
+	color: #000000;
+}
+
+.character-name {
+	font-size: 1.5rem;
+	font-weight: bold;
+	margin: 15px 0;
+	text-shadow: none;
+	color: #000000;
+	font-family: var(--font-mono);
+	text-transform: uppercase;
+}
+
+.intro {
+	font-size: 1rem;
+	margin: 20px 0;
+	color: var(--muted);
+	font-weight: normal;
+}
+
+.error {
+	color: var(--ink);
+	margin-top: 0.5rem;
+	border: 1px solid var(--border);
+	padding: 10px;
+	background: #f0f0f0;
+}
+
+img.round {
+	border-radius: 0;
+	border: 1px solid var(--border);
+}
+
+/* Clases adicionales para el estilo minimalista */
+.terminal-text {
+	font-family: var(--font-mono);
+	color: #000000;
+	background: #ffffff;
+	padding: 10px;
+	border: 1px solid var(--border);
+}
+
+.cursor-blink::after {
+	content: "_";
+	animation: blink 1s infinite;
+	color: #000000;
+	font-weight: bold;
+	margin-left: 2px;
+}
+
+@keyframes blink {
+	0%,
+	49% {
+		opacity: 1;
+	}
+	50%,
+	100% {
+		opacity: 0;
+	}
+}
+
+/* Sobrescribir algunas clases de Tailwind para el estilo minimalista */
+.bg-white {
+	background-color: #ffffff !important;
+}
+
+.text-black {
+	color: #000000 !important;
+}
+
+.border-black {
+	border-color: #000000 !important;
+}
+
+.bg-black {
+	background-color: #000000 !important;
+}
+
+.bg-gray-200 {
+	background-color: #e5e7eb !important;
+}
+
+.border-gray-200,
+.border-red-200 {
+	border-color: #000000 !important;
+}
+
+.shadow-2xl,
+.shadow-lg,
+.hover\\:shadow-lg:hover,
+.hover\\:shadow-md:hover,
+.hover\\:shadow-xl:hover {
+	box-shadow: none !important;
+}
+
+.rounded-3xl,
+.rounded-2xl,
+.rounded-full,
+.rounded-lg {
+	border-radius: 0 !important;
+}
+
+.drop-shadow,
+.drop-shadow-lg {
+	filter: none !important;
+}
+
+/* Efectos hover minimalistas */
+.hover\\:scale-105:hover {
+	transform: none !important;
+}
+
+/* Asegurar que las transiciones funcionen */
+.transition-all,
+.transition {
+	transition-property: all !important;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.duration-300 {
+	transition-duration: 300ms !important;
+}
+
+.ease-out {
+	transition-timing-function: cubic-bezier(0, 0, 0.2, 1) !important;
+}
+
+/* Estilo específico para cuando el Akineitor habla */
+.akineitor-speak {
+	background: #ffffff !important;
+	color: #000000 !important;
+	font-family: var(--font-mono) !important;
+	border: 2px solid #000000 !important;
+	border-radius: 0 !important;
+	position: relative;
+	overflow: hidden;
+}
+
+.akineitor-speak::before {
+	content: "> ";
+	color: #000000;
+	font-weight: bold;
+}
+
+.akineitor-speak h3 {
+	font-family: var(--font-mono) !important;
+	color: #000000 !important;
+	margin: 0 !important;
+	white-space: normal !important;
+	word-wrap: break-word !important;
+	overflow: visible !important;
+}
+
+.akineitor-speak h3::after {
+	content: "_";
+	animation: blink 1s infinite;
+	color: #000000;
+	font-weight: bold;
+	margin-left: 2px;
+}
+
+.akineitor-speak p {
+	font-family: var(--font-mono) !important;
+	color: #000000 !important;
+	white-space: normal !important;
+	word-wrap: break-word !important;
+}
+
+/* Animación de escaneo minimalista */
+.akineitor-speak::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(0, 0, 0, 0.1),
+		transparent
+	);
+	animation: scan 3s infinite;
+}
+
+@keyframes scan {
+	0% {
+		left: -100%;
+	}
+	100% {
+		left: 100%;
+	}
+}
+
+/* Estilo para el cursor que parpadea */
+.cursor-blink::after {
+	content: "_";
+	animation: blink 1s infinite;
+	color: #000000;
+	font-weight: bold;
+	display: inline-block;
+	margin-left: 2px;
+}
+
+/* Fuente monospace */
+.font-mono {
+	font-family: var(--font-mono) !important;
+}
+
+/* Animación de texto que se escribe lentamente */
+@keyframes typewriter-slow {
+	from {
+		width: 0;
+	}
+	to {
+		width: 100%;
+	}
+}
+
+/* Efecto de matriz de datos */
+.terminal-matrix::before {
+	content: "001101010110100101011010...";
+	position: absolute;
+	top: -20px;
+	left: 0;
+	font-size: 8px;
+	color: rgba(0, 255, 0, 0.3);
+	animation: matrix 2s linear infinite;
+}
+
+@keyframes matrix {
+	0% {
+		transform: translateX(-100px);
+		opacity: 0;
+	}
+	50% {
+		opacity: 0.3;
+	}
+	100% {
+		transform: translateX(100px);
+		opacity: 0;
+	}
+}
+
+/* Sobrescribir el contenedor principal para el tema minimalista */
+.bg-white.rounded-3xl.shadow-2xl {
+	background: #ffffff !important;
+	border: 1px solid #000000 !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	max-width: 400px !important;
+}
+
+/* Efecto minimalista de datos */
+.terminal-matrix::before {
+	content: "001101010110100101011010...";
+	position: absolute;
+	top: -20px;
+	left: 0;
+	font-size: 8px;
+	color: rgba(0, 0, 0, 0.3);
+	animation: matrix 2s linear infinite;
+}
+
+/* Estilos adicionales para Font Awesome */
+.fa-icon {
+	margin-right: 8px;
+	font-size: 1.2em;
+}
+
+.fa-large {
+	font-size: 2em;
+	margin-bottom: 10px;
+}
+
+/* Asegurar fondo blanco y texto negro en toda la aplicación */
+.min-h-screen {
+	background: #ffffff !important;
+	color: #000000 !important;
+}
