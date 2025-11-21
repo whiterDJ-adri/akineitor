@@ -12,6 +12,12 @@
             <div class="border-t-2 border-black mt-2"></div>
         </div>
     <?php endif; ?>
+    <?php if (!empty($confianza)): ?>
+        <?php $pc = (int)round(((float)$confianza) * 100); ?>
+        <div class="mb-4">
+            <p class="text-sm text-black font-mono"><i class="fas fa-percentage fa-icon"></i> Progreso de adivinación: <?= $pc ?>%</p>
+        </div>
+    <?php endif; ?>
 
     <div class="bg-white border-2 border-black p-6 mb-6">
         <div class="mb-4 text-left">

@@ -70,4 +70,37 @@ $porcentaje = (int) round($conf * 100);
             </button>
         </form>
     </div>
+
+    <div class="bg-white border-2 border-black p-6 mt-6">
+        <div class="text-left mb-4">
+            <span class="font-mono text-black font-semibold">&gt; ¿Fue incorrecto? Corrige o sugiere</span>
+        </div>
+        <?php $alternativos = $resultado['personajes_alternativos'] ?? []; ?>
+        <?php if (!empty($alternativos)): ?>
+            <form action="index.php?action=corregir" method="post" class="mb-4">
+                <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+                <label class="block text-sm font-mono text-black mb-2">Elegir personaje correcto</label>
+                <select name="personajeId" class="border-2 border-black px-3 py-2 w-full">
+                    <?php foreach ($alternativos as $alt): ?>
+                        <option value="<?= (int)$alt['id'] ?>">
+                            <?= htmlspecialchars($alt['nombre'] . ' (' . (int)round(($alt['probabilidad'] ?? 0) * 100) . '%)', ENT_QUOTES, 'UTF-8') ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <button class="mt-3 bg-white hover:bg-black border-2 border-black text-black hover:text-white font-semibold px-4 py-2" type="submit">
+                    Aplicar corrección
+                </button>
+            </form>
+        <?php endif; ?>
+        <form action="index.php?action=sugerir" method="post">
+            <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+            <label class="block text-sm font-mono text-black mb-2">Sugerir personaje nuevo</label>
+            <input type="text" name="nombre" placeholder="Nombre" class="border-2 border-black px-3 py-2 w-full mb-2">
+            <input type="text" name="imagen_url" placeholder="URL de imagen (opcional)" class="border-2 border-black px-3 py-2 w-full mb-2">
+            <textarea name="descripcion" placeholder="Descripción (opcional)" class="border-2 border-black px-3 py-2 w-full mb-2"></textarea>
+            <button class="bg-white hover:bg-black border-2 border-black text-black hover:text-white font-semibold px-4 py-2" type="submit">
+                Sugerir personaje
+            </button>
+        </form>
+    </div>
 </div>

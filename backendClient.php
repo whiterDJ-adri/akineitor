@@ -47,6 +47,7 @@ class BackendClient
 
         $context = stream_context_create($options);
         $response = @file_get_contents($url, false, $context);
+        error_log('[BackendClient] ' . $method . ' ' . $url);
 
         if ($response === false) {
             $error = error_get_last();
@@ -72,9 +73,10 @@ class BackendClient
         }
 
         $decodedResponse = json_decode($response, true);
+        error_log('[BackendClient] respuesta código ' . $httpCode . ' tamaño ' . strlen((string)$response));
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new RuntimeException("Error al decodificar respuesta JSON de la API: " . json_last_error_msg());
+            throw new RuntimeException("Error al decodificar respuesta JSON de la API: " . $response);
         }
 
         return $decodedResponse;
@@ -115,7 +117,7 @@ class BackendClient
 
             $progreso = [
                 'paso' => $preguntasRespondidas + 1,
-                'total' => 15 // Estimado, podría ajustarse dinámicamente
+                'total' => 12
             ];
 
             return [
@@ -134,7 +136,7 @@ class BackendClient
             $respuesta = $payload['respuesta'] ?? null;
             $preguntaId = $payload['preguntaId'] ?? null;
 
-            if (!$respuesta || !$preguntaId) {
+            if ($respuesta === null || $respuesta === '' || $preguntaId === null) {
                 throw new RuntimeException("Datos de respuesta incompletos");
             }
 
@@ -172,9 +174,33 @@ class BackendClient
                     ]
                 ];
             } else {
-                // Devolver siguiente pregunta
+                // Devolver siguiente pregunta o degradar a resultado si falta la pregunta
                 if (!$preguntaActual) {
-                    throw new RuntimeException("No hay más preguntas disponibles");
+                    $personajePrincipal = $personajesPosibles[0] ?? null;
+                    if ($personajePrincipal) {
+                        return [
+                            'resultado' => [
+                                'personaje' => [
+                                    'id' => $personajePrincipal['id'],
+                                    'nombre' => $personajePrincipal['nombre'],
+                                    'imagenUrl' => null
+                                ],
+                                'confianza' => $probabilidad,
+                                'personajes_alternativos' => array_slice($personajesPosibles, 1, 4)
+                            ]
+                        ];
+                    }
+                    return [
+                        'resultado' => [
+                            'personaje' => [
+                                'id' => 0,
+                                'nombre' => 'Desconocido',
+                                'imagenUrl' => null
+                            ],
+                            'confianza' => 0,
+                            'personajes_alternativos' => []
+                        ]
+                    ];
                 }
 
                 $pregunta = [
@@ -184,13 +210,14 @@ class BackendClient
 
                 $progreso = [
                     'paso' => $preguntasRespondidas + 1,
-                    'total' => 15 // Estimado
+                    'total' => 12
                 ];
 
                 return [
                     'pregunta' => $pregunta,
                     'progreso' => $progreso,
-                    'personajes_posibles' => array_slice($personajesPosibles, 0, 5) // Top 5 candidatos
+                    'personajes_posibles' => array_slice($personajesPosibles, 0, 5),
+                    'confianza' => $probabilidad
                 ];
             }
         } catch (Exception $e) {
@@ -205,6 +232,35 @@ class BackendClient
             return $this->crearPartida();
         } catch (Exception $e) {
             throw new RuntimeException("Error al reiniciar partida: " . $e->getMessage());
+        }
+    }
+
+    public function corregir(string $partidaId, int $personajeId): array
+    {
+        try {
+            $payload = [
+                'partida_id' => $partidaId,
+                'personaje_id' => $personajeId,
+            ];
+            $resp = $this->makeApiCall('/api/algorithm/correct', $payload);
+            return $resp;
+        } catch (Exception $e) {
+            throw new RuntimeException("Error al corregir: " . $e->getMessage());
+        }
+    }
+
+    public function sugerirPersonaje(string $nombre, ?string $descripcion = null, ?string $imagenUrl = null): array
+    {
+        try {
+            $payload = [
+                'nombre' => $nombre,
+                'descripcion' => $descripcion,
+                'imagen_url' => $imagenUrl,
+            ];
+            $resp = $this->makeApiCall('/api/catalog/characters/create', $payload);
+            return $resp;
+        } catch (Exception $e) {
+            throw new RuntimeException("Error al sugerir personaje: " . $e->getMessage());
         }
     }
 }

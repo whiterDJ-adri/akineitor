@@ -17,7 +17,18 @@ function redirect(string $url): void {
 }
 
 function csrf_token(): string {
-    if (empty($_SESSION['_csrf'])) { $_SESSION['_csrf'] = bin2hex(random_bytes(16)); }
+    if (empty($_SESSION['_csrf'])) {
+        try {
+            $_SESSION['_csrf'] = bin2hex(random_bytes(16));
+        } catch (Throwable $e) {
+            $fallback = function_exists('openssl_random_pseudo_bytes') ? openssl_random_pseudo_bytes(16) : null;
+            if ($fallback !== null) {
+                $_SESSION['_csrf'] = bin2hex($fallback);
+            } else {
+                $_SESSION['_csrf'] = bin2hex(substr(sha1(uniqid((string)mt_rand(), true)), 0, 16));
+            }
+        }
+    }
     return $_SESSION['_csrf'];
 }
 function csrf_check(string $token): bool {
