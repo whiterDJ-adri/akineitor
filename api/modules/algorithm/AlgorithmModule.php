@@ -15,5 +15,6 @@ class AlgorithmModule implements ModuleInterface
 
         $controller = $c->get(AlgorithmController::class);
         $router->post($prefix . '/algorithm/step', [$controller, 'step']);
+        $router->post($prefix . '/algorithm/correct', [$controller, 'correct']);
     }
 }

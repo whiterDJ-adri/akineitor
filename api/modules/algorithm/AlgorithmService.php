@@ -22,9 +22,35 @@ class AlgorithmService
         $row = $res->fetch_assoc();
         $objetivoId = $row ? (int)$row['id'] : null;
 
-        $usuarioIdStr = $usuarioId !== null ? (string)$usuarioId : null;
-        $sql = "INSERT INTO partidas (usuario_id, personaje_objetivo_id, estado, estado_json) VALUES (?, ?, 'in_progress', NULL)";
-        $this->db->query($sql, [$usuarioIdStr, (string)$objetivoId]);
+        $fields = [];
+        $values = [];
+        $params = [];
+
+        if ($usuarioId !== null) {
+            $fields[] = 'usuario_id';
+            $values[] = '?';
+            $params[] = (string)$usuarioId;
+        } else {
+            $fields[] = 'usuario_id';
+            $values[] = 'NULL';
+        }
+
+        if ($objetivoId !== null) {
+            $fields[] = 'personaje_objetivo_id';
+            $values[] = '?';
+            $params[] = (string)$objetivoId;
+        } else {
+            $fields[] = 'personaje_objetivo_id';
+            $values[] = 'NULL';
+        }
+
+        $fields[] = 'estado';
+        $values[] = "'in_progress'";
+        $fields[] = 'estado_json';
+        $values[] = 'NULL';
+
+        $sql = "INSERT INTO partidas (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $values) . ")";
+        $this->db->query($sql, $params);
         $rid = $this->db->query("SELECT LAST_INSERT_ID() AS id");
         $ridRow = $rid->fetch_assoc();
         $partidaId = (int)($ridRow['id'] ?? 0);
@@ -60,6 +86,29 @@ class AlgorithmService
             "INSERT INTO respuestas_partida (partida_id, pregunta_id, respuesta_usuario) VALUES (?, ?, ?)",
             [(string)$partidaId, (string)$preguntaId, $respuesta]
         );
+    }
+
+    public function applyCorrection(int $partidaId, int $personajeId): void
+    {
+        $asked = $this->getAskedAnswers($partidaId);
+        foreach ($asked as $qid => $ans) {
+            $norm = $this->normalizeAnswer($ans);
+            $exists = $this->db->query(
+                "SELECT 1 FROM personaje_pregunta WHERE personaje_id = ? AND pregunta_id = ? LIMIT 1",
+                [(string)$personajeId, (string)$qid]
+            );
+            if ($exists && $exists->num_rows > 0) {
+                $this->db->query(
+                    "UPDATE personaje_pregunta SET respuesta_esperada = ? WHERE personaje_id = ? AND pregunta_id = ?",
+                    [$norm, (string)$personajeId, (string)$qid]
+                );
+            } else {
+                $this->db->query(
+                    "INSERT INTO personaje_pregunta (personaje_id, pregunta_id, respuesta_esperada) VALUES (?, ?, ?)",
+                    [(string)$personajeId, (string)$qid, $norm]
+                );
+            }
+        }
     }
 
     public function getAskedAnswers(int $partidaId): array
@@ -179,6 +228,10 @@ class AlgorithmService
             '¿Aparece en Dragon Ball Super?',
             '¿Es una fusión?',
             '¿Es un villano?',
+            '¿Puede transformarse en Super Saiyan?',
+            '¿Tiene forma Golden?',
+            '¿Aparece en Saga de Freezer?',
+            '¿Aparece en Torneo del Poder?',
         ];
     }
 
@@ -228,6 +281,22 @@ class AlgorithmService
                 if (in_array($race, ['majin', 'android'])) return 'sí';
                 if ($aff === 'freelancer') return 'sí';
                 if (in_array($aff, ['army of frieza', 'pride troopers', 'z fighter'])) return 'no';
+                return 'no';
+            case '¿Puede transformarse en Super Saiyan?':
+                if ($race === 'saiyan') return 'sí';
+                if (strpos($desc, 'super saiyan') !== false || strpos($desc, 'super saiyajin') !== false) return 'sí';
+                return 'no';
+            case '¿Tiene forma Golden?':
+                if (strpos($desc, 'golden') !== false) return 'sí';
+                if ($race === 'frieza race' && (strpos($name, 'frieza') !== false || strpos($name, 'freezer') !== false)) return 'sí';
+                return 'no';
+            case '¿Aparece en Saga de Freezer?':
+                if (strpos($desc, 'saga de freezer') !== false) return 'sí';
+                if ($aff === 'army of frieza') return 'sí';
+                return 'no';
+            case '¿Aparece en Torneo del Poder?':
+                if (strpos($desc, 'torneo del poder') !== false) return 'sí';
+                if ($aff === 'pride troopers') return 'sí';
                 return 'no';
             default:
                 return 'no lo sé';
@@ -296,6 +365,7 @@ class AlgorithmService
 
     public function selectNextQuestion(array $askedIds, array $probs, array $mapping, array $preguntas): ?int
     {
+        
         $allQIds = array_keys($preguntas);
         $remaining = array_values(array_diff($allQIds, $askedIds));
         if (empty($remaining)) return null;
@@ -310,11 +380,17 @@ class AlgorithmService
         }));
         $remainingToConsider = !empty($remainingCat) ? $remainingCat : $remaining;
 
+        $remainingToConsider = $this->filterContradictoryOrRedundant($remainingToConsider, $preguntas, $askedIds, $mapping, $probs);
+
         // Considerar solo top-K candidatos para maximizar ganancia de información donde importa
         $K = 12;
         $sorted = $probs;
         arsort($sorted);
         $topProbs = array_slice($sorted, 0, $K, true);
+
+        if (empty($topProbs)) {
+            return $remainingToConsider[0] ?? null;
+        }
 
         foreach ($remainingToConsider as $qid) {
             $q = $preguntas[$qid] ?? null;
@@ -343,6 +419,7 @@ class AlgorithmService
                     $H += - ($v / $total) * log($v / $total, 2);
                 }
             }
+            $H *= $this->domainRelevanceBoost($q['texto_pregunta'] ?? '');
             if ($H > $bestH) {
                 $bestH = $H;
                 $bestQ = $qid;
@@ -351,11 +428,106 @@ class AlgorithmService
         return $bestQ;
     }
 
+    private function filterContradictoryOrRedundant(array $candidates, array $preguntas, array $askedIds, array $mapping, array $probs): array
+    {
+        
+        if (empty($askedIds)) return $candidates;
+        $askedByText = [];
+        foreach ($askedIds as $qid) {
+            $texto = $preguntas[$qid]['texto_pregunta'] ?? null;
+            if ($texto) $askedByText[$texto] = $qid;
+        }
+        $rules = $this->getContradictionRules();
+        $exclude = [];
+        foreach ($rules as $rule) {
+            $ifText = $rule['if_text'];
+            $ifAns = $rule['if_answer'];
+            $thenText = $rule['then_exclude_text'];
+            if (!isset($askedByText[$ifText])) continue;
+            $qidAsked = $askedByText[$ifText];
+            $given = $this->normalizeAnswer($this->mappingTopAnswerForAsked($qidAsked, $mapping, $probs));
+            $givenUser = null;
+            // Intentar recuperar la respuesta real del usuario mediante mapeo de asked
+            // Si no disponible, usar mayoría ponderada por probs
+            $givenUser = $given;
+            if ($givenUser === $this->normalizeAnswer($ifAns)) {
+                foreach ($candidates as $cid) {
+                    $textoC = $preguntas[$cid]['texto_pregunta'] ?? '';
+                    if ($textoC === $thenText) $exclude[$cid] = true;
+                }
+            }
+        }
+        $filtered = [];
+        foreach ($candidates as $cid) {
+            if (!isset($exclude[$cid])) $filtered[] = $cid;
+        }
+        return $filtered;
+    }
+
+    private function getContradictionRules(): array
+    {
+        
+        return [
+            ['if_text' => '¿Forma parte de los Guerreros Z?', 'if_answer' => 'sí', 'then_exclude_text' => '¿Es un villano?'],
+            ['if_text' => '¿Pertenece a la raza Saiyan?', 'if_answer' => 'sí', 'then_exclude_text' => '¿Pertenece a la raza Humana?'],
+            ['if_text' => '¿Pertenece a la raza Humana?', 'if_answer' => 'sí', 'then_exclude_text' => '¿Pertenece a la raza Saiyan?'],
+            ['if_text' => '¿Pertenece a la raza Ángel?', 'if_answer' => 'sí', 'then_exclude_text' => '¿Es un villano?'],
+            ['if_text' => '¿Pertenece a la raza Dios?', 'if_answer' => 'sí', 'then_exclude_text' => '¿Es un villano?'],
+        ];
+    }
+
+    private function domainRelevanceBoost(string $texto): float
+    {
+        
+        $race = [
+            '¿Pertenece a la raza Saiyan?',
+            '¿Pertenece a la raza Humana?',
+            '¿Pertenece a la raza Android?',
+            '¿Pertenece a la raza de Freezer?',
+            '¿Pertenece a la raza Dios?',
+            '¿Pertenece a la raza Ángel?',
+            '¿Pertenece a la raza Majin?',
+        ];
+        $align = [
+            '¿Forma parte de los Guerreros Z?',
+            '¿Forma parte del Ejército de Freezer?',
+            '¿Forma parte de las Tropas del Orgullo?',
+            '¿Es un villano?',
+        ];
+        $transform = [
+            '¿Puede transformarse en Super Saiyan?',
+            '¿Tiene forma Golden?',
+            '¿Es una fusión?',
+        ];
+        $saga = [
+            '¿Aparece en Saga de Freezer?',
+            '¿Aparece en Torneo del Poder?',
+            '¿Aparece en Dragon Ball Super?',
+        ];
+        if (in_array($texto, $race, true)) return 1.25;
+        if (in_array($texto, $align, true)) return 1.2;
+        if (in_array($texto, $transform, true)) return 1.15;
+        if (in_array($texto, $saga, true)) return 1.1;
+        return 1.0;
+    }
+
+    private function mappingTopAnswerForAsked(int $qid, array $mapping, array $probs): string
+    {
+        
+        $sorted = $probs;
+        arsort($sorted);
+        foreach ($sorted as $pid => $_p) {
+            if (isset($mapping[$pid][$qid])) return $mapping[$pid][$qid];
+        }
+        return 'no lo sé';
+    }
+
     private function normalizeAnswer(string $ans): string
     {
         $a = trim(mb_strtolower($ans));
         // normalización de variantes
         if ($a === 'si') $a = 'sí';
+        if ($a === 'ns') $a = 'no lo sé';
         if ($a === 'probablemente si') $a = 'probablemente';
         if ($a === 'probablemente sí') $a = 'probablemente';
         if ($a === 'no lo se' || $a === 'no se') $a = 'no lo sé';

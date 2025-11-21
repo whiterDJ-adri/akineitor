@@ -11,6 +11,7 @@ class AlgorithmController
 
     public function step(Request $req, Response $res): void
     {
+        error_log('[AlgorithmController] step');
         $partidaIdRaw = $req->body['partida_id'] ?? null;
         $respuesta = $req->body['respuesta'] ?? null;
         $partidaId = $partidaIdRaw !== null && $partidaIdRaw !== '' ? (int)$partidaIdRaw : null;
@@ -52,13 +53,15 @@ class AlgorithmController
 
         // Umbral dinámico según número de preguntas ya respondidas
         $askedCount = count($askedIds);
-        $threshold = 0.85;
-        if ($askedCount >= 8) $threshold = 0.8;
-        if ($askedCount >= 10) $threshold = 0.75;
-        if ($askedCount >= 12) $threshold = 0.7;
-        $ratioThreshold = 1.6;
+        $threshold = 0.8;
+        if ($askedCount >= 8) $threshold = 0.75;
+        if ($askedCount >= 10) $threshold = 0.7;
+        if ($askedCount >= 12) $threshold = 0.65;
+        $ratioThreshold = ($askedCount >= 10) ? 1.4 : 1.6;
         $hasStrongLead = ($secondProb > 0) && (($topProb / $secondProb) >= $ratioThreshold);
-        $esFinal = ($nextQId === null) || ($topProb >= $threshold) || $hasStrongLead;
+        $maxQuestions = 12;
+        $forceFinal = ($askedCount >= $maxQuestions);
+        $esFinal = $forceFinal || ($nextQId === null) || ($topProb >= $threshold) || $hasStrongLead;
 
         if ($esFinal) {
             $this->service->completePartida($partidaId);
@@ -99,5 +102,24 @@ class AlgorithmController
             'partida_id' => $partidaId,
         ];
         $res::json($salida);
+    }
+
+    public function correct(Request $req, Response $res): void
+    {
+        error_log('[AlgorithmController] correct');
+        $partidaIdRaw = $req->body['partida_id'] ?? null;
+        $personajeIdRaw = $req->body['personaje_id'] ?? null;
+        if ($partidaIdRaw === null || $personajeIdRaw === null) {
+            $res::json(['error' => 'Datos incompletos'], 400);
+            return;
+        }
+        $partidaId = (int)$partidaIdRaw;
+        $personajeId = (int)$personajeIdRaw;
+        try {
+            $this->service->applyCorrection($partidaId, $personajeId);
+            $res::json(['ok' => true]);
+        } catch (\Throwable $e) {
+            $res::json(['error' => 'No se pudo aplicar la corrección'], 500);
+        }
     }
 }

@@ -12,7 +12,7 @@ if (!empty($error)): ?>
 <?php endif; ?>
 
 <?php if ($pregunta): ?>
-    <?php partial('pregunta', compact('pregunta', 'progreso'));
+    <?php partial('pregunta', compact('pregunta', 'progreso', 'confianza'));
     return; ?>
 <?php endif; ?>
 
