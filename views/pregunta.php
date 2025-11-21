@@ -1,5 +1,5 @@
 <div class="bg-white border-2 border-black p-8 max-w-md w-full text-center">
-    <h1 class="text-4xl font-bold text-black mb-6 cursor-title">
+    <h1 class="text-4xl font-bold text-black mb-6">
         <i class="fas fa-question-circle fa-icon"></i> Pregunta
     </h1>
 

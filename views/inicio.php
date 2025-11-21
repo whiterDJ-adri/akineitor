@@ -24,7 +24,7 @@ if (!empty($error)): ?>
     <div class="mb-8">
         <p class="text-lg text-black mb-4">¡Bienvenido al juego más misterioso de internet!</p>
         <p class="text-black mb-4">Piensa en cualquier personaje <strong class="text-black">real o
-                ficticio</strong> y yo intentaré adivinarlo con solo unas preguntas.</p>
+                ficticio de la Saga DragonBall</strong> y yo intentaré adivinarlo con solo unas preguntas.</p>
         <p class="text-gray-500 text-sm">¿Estás listo para el desafío? <i class="fas fa-target"></i></p>
     </div>
 

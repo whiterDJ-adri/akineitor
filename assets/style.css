@@ -153,15 +153,6 @@ button:hover::after {
 	}
 }
 
-/* Cursor parpadeante para el título */
-.cursor-title::after {
-	content: "_";
-	animation: blink 1s infinite;
-	color: #000000;
-	font-weight: bold;
-	margin-left: 2px;
-}
-
 /* Estilos para el contenedor de preguntas */
 #question-text {
 	display: inline;
