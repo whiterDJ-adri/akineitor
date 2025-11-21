@@ -1,20 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
 <html lang="es">
 
 <head>
   <meta charset="utf-8">
-  <title>Akinator PHP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="assets/style.css">
-  <link href="assets/styleT.css" rel="stylesheet">
+  <meta name="description" content="Akinator de Dragon Ball - ¡Piensa en un personaje y lo adivinaré!">
+  <title>Akineitor - Dragon Ball Edition</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Kanit:ital,wght@0,600;0,800;1,800&display=swap"
+    rel="stylesheet">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="assets/style_modern.css">
 </head>
 
-<body class="min-h-screen">
-  <div class="min-h-screen flex items-center justify-center p-5">
-    <?php require $VIEW_FILE; ?>
+<body class="bg-grid-pattern">
+  <div class="main-container">
+    <header class="header-bar">
+      <div class="font-title font-bold text-xl tracking-tighter">AKINEITOR <span
+          class="text-[var(--db-orange)]">DBZ</span></div>
+      <div class="text-xs font-mono uppercase tracking-widest">System Online</div>
+    </header>
+
+    <main class="flex-grow flex flex-col justify-center">
+      <?php require $VIEW_FILE; ?>
+    </main>
+
+    <footer class="border-t-black p-4 text-center text-xs font-mono uppercase text-gray-400">
+      Capsule Corp. Technology &copy; <?= date('Y') ?>
+    </footer>
   </div>
 </body>
 

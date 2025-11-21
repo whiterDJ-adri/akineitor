@@ -1,0 +1,1006 @@
+/*
+==================================================
+🐉 AKINATOR DRAGON BALL - MODERN DESIGN SYSTEM
+==================================================
+Fusión: Dragon Ball + Modern Web Design
+- Minimalista y espacioso
+- Tipografía bold y clean
+- Microinteracciones sutiles
+==================================================
+*/
+
+:root {
+	/* 🎨 Colores Dragon Ball Modernos */
+	--db-cream: #faf8f5;
+	--db-orange: #ff6b35;
+	--db-yellow: #ffb627;
+	--db-orange-dark: #e85d00;
+	--db-orange-light: #ffe5dc;
+	--db-black: #0a0a0a;
+	--db-gray: #636363;
+	--db-gray-light: #a8a8a8;
+	--db-white: #ffffff;
+
+	/* 📐 Espaciados compactos */
+	--spacing-xs: 0.4rem;
+	--spacing-sm: 0.6rem;
+	--spacing-md: 1rem;
+	--spacing-lg: 1.5rem;
+	--spacing-xl: 2rem;
+
+	/* 🔤 Tipografía */
+	--font-title: "Kanit", sans-serif;
+	--font-body: "Inter", sans-serif;
+
+	/* 🌊 Sombras sutiles */
+	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+	--shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+	--shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
+	--shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+	/* 📏 Bordes redondeados */
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 16px;
+	--radius-xl: 24px;
+	--radius-full: 9999px;
+
+	/* ⏱️ Transiciones */
+	--transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: var(--font-body);
+	/* Fondo más “poster / radar” */
+	background:
+		linear-gradient(135deg, #FFF8E7 0%, #FFF3D4 40%, #FFE0B3 100%);
+	margin: 0;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1.5rem;
+	color: var(--db-black);
+	position: relative;
+	overflow: hidden;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+
+/* 🎯 Elementos decorativos sutiles (estilo moderno) */
+body::before {
+	content: "";
+	position: fixed;
+	width: 600px;
+	height: 600px;
+	background: radial-gradient(
+		circle,
+		rgba(255, 107, 53, 0.04) 0%,
+		transparent 70%
+	);
+	top: -300px;
+	right: -300px;
+	z-index: 0;
+	pointer-events: none;
+}
+
+body::after {
+	content: "";
+	position: fixed;
+	width: 500px;
+	height: 500px;
+	background: radial-gradient(
+		circle,
+		rgba(255, 182, 39, 0.03) 0%,
+		transparent 70%
+	);
+	bottom: -250px;
+	left: -250px;
+	z-index: 0;
+	pointer-events: none;
+}
+
+/* =============================================
+   🎴 MODERN CARD SYSTEM - Ultra Compacto
+   ============================================= */
+
+.modern-card {
+	position: relative;
+	z-index: 1;
+	max-width: 480px;
+	width: 100%;
+	background: rgba(255, 255, 255, 0.95);
+	border-radius: var(--radius-lg);
+	padding: 1.5rem 1.8rem;
+	box-shadow: var(--shadow-lg);
+	text-align: center;
+	border: 1px solid rgba(255, 107, 53, 0.08);
+	backdrop-filter: blur(12px);
+}
+
+.question-card,
+.result-card {
+	background: linear-gradient(135deg, #fff9f2 0%, #ffffff 100%);
+	border: 2px solid var(--db-orange);
+	border-radius: var(--radius-md);
+	padding: 1.2rem;
+	margin-bottom: 1rem;
+	position: relative;
+	box-shadow: var(--shadow-md);
+}
+
+.result-card {
+	border-color: var(--db-yellow);
+	overflow: hidden;
+}
+
+.result-card::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: linear-gradient(90deg, var(--db-yellow) 0%, var(--db-orange) 50%, var(--db-yellow) 100%);
+}
+
+.correction-card {
+	background: #fff9f2;
+	border: 2px solid var(--db-orange-light);
+	border-radius: var(--radius-md);
+	padding: 1.2rem;
+	margin-top: 1rem;
+	text-align: left;
+}
+
+/* =============================================
+   🔘 BOTONES MODERNOS
+   ============================================= */
+
+.btn-primary {
+	width: 100%;
+	max-width: 100%;
+	font-family: var(--font-title);
+	font-size: 0.95rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	padding: 0.9rem 2rem;
+	border-radius: var(--radius-full);
+	font-weight: 700;
+	background: var(--db-orange);
+	color: white;
+	border: 2px solid var(--db-orange);
+	cursor: pointer;
+	transition: all var(--transition);
+	box-shadow: var(--shadow-md);
+	position: relative;
+	overflow: hidden;
+}
+
+.btn-primary:hover {
+	background: var(--db-orange-dark);
+	border-color: var(--db-orange-dark);
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:active {
+	transform: translateY(0);
+}
+
+.btn-answer {
+	font-family: var(--font-body);
+	font-size: 0.88rem;
+	font-weight: 600;
+	padding: 0.7rem 1.3rem;
+	min-width: 90px;
+	border-radius: var(--radius-md);
+	background: white;
+	color: var(--db-black);
+	border: 2px solid var(--db-orange);
+	cursor: pointer;
+	transition: all var(--transition);
+	box-shadow: var(--shadow-sm);
+}
+
+.btn-answer:hover {
+	background: var(--db-orange);
+	color: white;
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+	font-family: var(--font-body);
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.6rem 1.2rem;
+	border-radius: var(--radius-md);
+	background: white;
+	color: var(--db-gray);
+	border: 2px solid var(--db-orange-light);
+	cursor: pointer;
+	transition: all var(--transition);
+	margin-top: 0.5rem;
+}
+
+.btn-secondary:hover {
+	background: var(--db-orange-light);
+	border-color: var(--db-orange);
+	color: var(--db-black);
+}
+
+.btn-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem;
+	justify-content: center;
+	align-items: center;
+}
+
+/* =============================================
+   📊 PROGRESS ELEMENTS
+   ============================================= */
+
+.progress-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, #ffa726 0%, #ff8c42 100%);
+	color: white;
+	font-family: var(--font-title);
+	font-weight: 700;
+	padding: 0.35rem 1rem;
+	border-radius: var(--radius-full);
+	font-size: 0.75rem;
+	box-shadow: var(--shadow-md);
+}
+
+.progress-bar {
+	background: #ffe8d6;
+	border: 2px solid #ffb366;
+	border-radius: var(--radius-full);
+	height: 6px;
+	overflow: hidden;
+}
+
+.progress-fill {
+	background: linear-gradient(90deg, #ffa726 0%, #ff8c42 100%);
+	height: 100%;
+	transition: width 0.5s ease;
+	border-radius: var(--radius-full);
+}
+
+/* =============================================
+   🖼️ IMAGES
+   ============================================= */
+
+.character-img {
+	max-width: 110px;
+	width: 100%;
+	margin: 0 auto;
+	border: 3px solid var(--db-orange);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-md);
+	display: block;
+}
+
+/* =============================================
+   📝 FORM INPUTS
+   ============================================= */
+
+.form-input {
+	border: 2px solid var(--db-orange-light);
+	border-radius: var(--radius-sm);
+	padding: 0.55rem 0.75rem;
+	font-family: var(--font-body);
+	font-size: 0.85rem;
+	color: var(--db-black);
+	background: white;
+	width: 100%;
+	transition: all var(--transition);
+}
+
+.form-input:focus {
+	outline: none;
+	border-color: var(--db-orange);
+	box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+/* =============================================
+   🎬 ANIMATIONS
+   ============================================= */
+
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.8;
+		transform: scale(1.05);
+	}
+}
+
+/* =============================================
+   📱 RESPONSIVE
+   ============================================= */
+
+@media (max-width: 640px) {
+	.modern-card {
+		padding: 1.2rem 1.4rem;
+		max-width: 100%;
+	}
+
+	.btn-group {
+		gap: 0.5rem;
+	}
+
+	.btn-answer {
+		font-size: 0.82rem;
+		padding: 0.6rem 1rem;
+		min-width: 80px;
+	}
+
+	.character-img {
+		max-width: 90px;
+	}
+}
+
+/* ============================================
+   📦 CONTENEDORES Y LAYOUT MODERNO
+   ============================================ */
+
+.container,
+.bg-white.border-2 {
+	position: relative;
+	z-index: 1;
+	max-width: 650px;
+	width: 100%;
+	background: var(--db-white);
+	border-radius: var(--radius-xl);
+	padding: var(--spacing-xl);
+	box-shadow: var(--shadow-lg);
+	text-align: center;
+	border: 1px solid rgba(0, 0, 0, 0.06);
+	backdrop-filter: blur(10px);
+}
+
+@media (max-width: 640px) {
+	.container,
+	.bg-white.border-2 {
+		padding: var(--spacing-lg);
+		max-width: 100%;
+		border-radius: var(--radius-lg);
+	}
+}
+
+/* ============================================
+   🔤 TIPOGRAFÍA MODERNA
+   ============================================ */
+
+h1 {
+	font-family: var(--font-title);
+	font-weight: 800;
+	font-size: clamp(2.5rem, 6vw, 3.5rem);
+	color: var(--db-orange);
+	margin-bottom: var(--spacing-lg);
+	line-height: 1.1;
+	text-transform: uppercase;
+	letter-spacing: -0.03em;
+}
+
+h2 {
+	font-family: var(--font-title);
+	font-weight: 700;
+	font-size: clamp(1.75rem, 4vw, 2.25rem);
+	color: var(--db-black);
+	margin-bottom: var(--spacing-md);
+	line-height: 1.2;
+	letter-spacing: -0.02em;
+}
+
+h3 {
+	font-family: var(--font-body);
+	font-weight: 600;
+	font-size: 1.25rem;
+	color: var(--db-black);
+	line-height: 1.6;
+}
+
+p {
+	margin: var(--spacing-sm) 0;
+	line-height: 1.8;
+	font-weight: 400;
+	color: var(--db-gray);
+	font-size: 1.0625rem;
+}
+
+.muted,
+.text-gray-500 {
+	color: var(--db-gray-light) !important;
+	font-size: 0.9375rem;
+}
+
+strong {
+	font-weight: 700;
+	color: var(--db-black);
+}
+
+/* ============================================
+   🎯 CARD DE PREGUNTA (ESTILO MODERNO MINIMALISTA)
+   ============================================ */
+
+.question,
+.bg-white.border-2.border-black.p-6 {
+	background: #fafafa;
+	border: 1px solid rgba(0, 0, 0, 0.08);
+	border-radius: var(--radius-lg);
+	padding: var(--spacing-md);
+	margin: var(--spacing-md) 0;
+	position: relative;
+	overflow: visible;
+	box-shadow: var(--shadow-sm);
+	transition: all var(--transition-base);
+}
+
+.question:hover,
+.bg-white.border-2.border-black.p-6:hover {
+	box-shadow: var(--shadow-md);
+	border-color: rgba(255, 107, 53, 0.15);
+}
+
+.question h3,
+#question-text {
+	font-family: var(--font-body);
+	font-size: 1.1875rem;
+	font-weight: 500;
+	color: var(--db-black);
+	line-height: 1.7;
+	margin: 0;
+	text-align: left;
+}
+
+/* Cursor parpadeante minimalista */
+.cursor-blink::after {
+	content: "|";
+	display: inline-block;
+	margin-left: 4px;
+	animation: blink 1s infinite;
+	color: var(--db-orange);
+	font-weight: 400;
+}
+
+@keyframes blink {
+	0%,
+	49% {
+		opacity: 1;
+	}
+	50%,
+	100% {
+		opacity: 0;
+	}
+}
+
+/* ============================================
+   🔘 BOTONES MODERNOS CON MICROINTERACCIONES
+   ============================================ */
+
+button,
+.btn {
+	position: relative;
+	font-family: var(--font-title);
+	font-weight: 700;
+	font-size: 1.0625rem;
+	padding: 1.125rem 2.5rem;
+	border-radius: var(--radius-full);
+	border: none;
+	cursor: pointer;
+	transition: all var(--transition-base);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	box-shadow: var(--shadow-md);
+	min-width: 140px;
+	overflow: hidden;
+}
+
+/* Efecto de brillo en hover */
+button::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(255, 255, 255, 0.3),
+		transparent
+	);
+	transition: left 0.5s;
+}
+
+button:hover::before {
+	left: 100%;
+}
+
+/* Botón primario (naranja) */
+button[type="submit"]:not([name="respuesta"]),
+.btn-primary,
+.bg-black {
+	background: linear-gradient(
+		135deg,
+		var(--db-orange) 0%,
+		var(--db-orange-dark) 100%
+	);
+	color: var(--db-white);
+}
+
+button[type="submit"]:not([name="respuesta"]):hover,
+.btn-primary:hover,
+.bg-black:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--shadow-xl);
+}
+
+/* Botones de respuesta (Sí/No/No sé) */
+button[name="respuesta"],
+.bg-white.hover\:bg-black {
+	background: var(--db-white);
+	color: var(--db-orange);
+	border: 2px solid var(--db-orange);
+	box-shadow: var(--shadow-sm);
+}
+
+button[name="respuesta"]:hover,
+.bg-white.hover\:bg-black:hover {
+	background: var(--db-orange);
+	color: var(--db-white);
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-md);
+}
+
+/* Botón secundario (más pequeño) */
+button.text-sm,
+.btn-secondary {
+	padding: 0.875rem 1.75rem;
+	font-size: 0.9375rem;
+	background: transparent;
+	color: var(--db-gray);
+	border: 2px solid rgba(0, 0, 0, 0.1);
+	font-weight: 600;
+}
+
+button.text-sm:hover,
+.btn-secondary:hover {
+	background: var(--db-gray);
+	color: var(--db-white);
+	border-color: var(--db-gray);
+}
+
+button:active {
+	transform: translateY(0) !important;
+}
+
+button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	transform: none !important;
+}
+
+/* ============================================
+   📊 PROGRESO Y BADGES
+   ============================================ */
+
+.progress {
+	background: #ffe8d6;
+	border: 2px solid var(--db-orange-light);
+	border-radius: var(--radius-full);
+	height: 8px;
+	margin: var(--spacing-md) 0;
+	overflow: hidden;
+}
+
+.progress-bar {
+	background: linear-gradient(
+		90deg,
+		var(--db-yellow) 0%,
+		var(--db-orange) 100%
+	);
+	height: 100%;
+	transition: width var(--transition-slow);
+	border-radius: var(--radius-full);
+}
+
+/* Badge circular de progreso */
+.border-t-2.border-black {
+	display: none; /* Ocultamos las líneas antiguas */
+}
+
+.font-mono.text-black {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(
+		135deg,
+		var(--db-yellow) 0%,
+		var(--db-orange) 100%
+	);
+	color: var(--db-white);
+	font-family: var(--font-title);
+	font-weight: 700;
+	padding: 0.5rem 1.25rem;
+	border-radius: var(--radius-full);
+	font-size: 0.875rem;
+	box-shadow: var(--shadow-sm);
+	margin: var(--spacing-sm) 0;
+}
+
+/* Círculo decorativo Dragon Ball */
+.fa-percentage::before,
+.fa-check-circle::before,
+.fa-crystal-ball::before {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: radial-gradient(
+		circle,
+		var(--db-yellow) 0%,
+		var(--db-orange) 100%
+	);
+	color: var(--db-white);
+	margin-right: 0.5rem;
+	padding: 0.25rem;
+	box-shadow: 0 2px 8px rgba(255, 140, 66, 0.3);
+}
+
+/* ============================================
+   🏆 PANTALLA DE RESULTADO
+   ============================================ */
+
+.result {
+	background: linear-gradient(135deg, #fff9f2 0%, #ffffff 100%);
+	border: 3px solid var(--db-yellow);
+	border-radius: var(--radius-md);
+	padding: var(--spacing-xl);
+	margin: var(--spacing-md) 0;
+	position: relative;
+	overflow: hidden;
+	box-shadow: var(--shadow-lg);
+}
+
+/* Elemento decorativo superior */
+.result::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: linear-gradient(
+		90deg,
+		var(--db-yellow) 0%,
+		var(--db-orange) 50%,
+		var(--db-yellow) 100%
+	);
+}
+
+/* Círculos decorativos de fondo */
+.result::after {
+	content: "";
+	position: absolute;
+	width: 150px;
+	height: 150px;
+	border-radius: 50%;
+	background: radial-gradient(
+		circle,
+		rgba(255, 167, 38, 0.1) 0%,
+		transparent 70%
+	);
+	top: -50px;
+	right: -50px;
+	z-index: 0;
+}
+
+.result h3 {
+	position: relative;
+	z-index: 1;
+	font-family: var(--font-title);
+	font-size: 2rem;
+	font-weight: 700;
+	color: var(--db-orange);
+	margin: var(--spacing-md) 0;
+	text-transform: uppercase;
+}
+
+.confidence {
+	font-family: var(--font-title);
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--db-orange);
+	margin: var(--spacing-sm) 0;
+}
+
+.character-name {
+	font-family: var(--font-title);
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: var(--db-black);
+	margin: var(--spacing-md) 0;
+	text-transform: uppercase;
+	letter-spacing: -0.01em;
+	text-shadow: 2px 2px 0 rgba(255, 140, 66, 0.1);
+}
+
+/* Imagen del personaje */
+img {
+	border-radius: var(--radius-md);
+	border: 4px solid var(--db-orange);
+	box-shadow: var(--shadow-lg);
+	max-width: 100%;
+	height: auto;
+}
+
+img.round {
+	border-radius: 50%;
+}
+
+/* ============================================
+   🎨 UTILIDADES Y CLASES AUXILIARES
+   ============================================ */
+
+.intro {
+	font-size: 1rem;
+	margin: var(--spacing-md) 0;
+	color: var(--db-gray);
+	line-height: 1.7;
+}
+
+.error,
+.bg-red-50 {
+	background: #ffe8e8 !important;
+	border: 2px solid #ff6b6b !important;
+	border-radius: var(--radius-md) !important;
+	color: #cc0000 !important;
+	padding: var(--spacing-sm) var(--spacing-md) !important;
+	margin: var(--spacing-md) 0 !important;
+	font-weight: 500;
+}
+
+.text-left {
+	text-align: left !important;
+}
+
+#question-text {
+	display: inline;
+	word-wrap: break-word;
+	white-space: normal;
+}
+
+/* Grid de botones */
+.flex.flex-wrap.gap-4,
+.row {
+	display: flex;
+	gap: var(--spacing-sm);
+	flex-wrap: wrap;
+	margin: var(--spacing-lg) 0;
+	justify-content: center;
+}
+
+/* Formularios */
+select,
+input[type="text"],
+textarea {
+	width: 100%;
+	padding: 0.75rem 1rem;
+	border: 2px solid var(--db-orange-light);
+	border-radius: var(--radius-sm);
+	font-family: var(--font-body);
+	font-size: 1rem;
+	color: var(--db-black);
+	background: var(--db-white);
+	transition: all var(--transition-fast);
+	margin: var(--spacing-xs) 0;
+}
+
+select:focus,
+input[type="text"]:focus,
+textarea:focus {
+	outline: none;
+	border-color: var(--db-orange);
+	box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+}
+
+textarea {
+	resize: vertical;
+	min-height: 100px;
+}
+
+label {
+	display: block;
+	font-weight: 600;
+	color: var(--db-black);
+	margin-bottom: var(--spacing-xs);
+	font-size: 0.875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.025em;
+}
+
+/* ============================================
+   🎭 ICONOS FONT AWESOME
+   ============================================ */
+
+.fa-icon {
+	margin-right: 0.5rem;
+	font-size: 1.1em;
+}
+
+.fa-large {
+	font-size: 3em;
+	margin-bottom: var(--spacing-sm);
+	color: var(--db-orange);
+	filter: drop-shadow(0 4px 8px rgba(255, 140, 66, 0.3));
+}
+
+/* ============================================
+   🔄 SOBRESCRIBIR TAILWIND (MANTENER COHERENCIA)
+   ============================================ */
+
+.bg-white {
+	background-color: var(--db-white) !important;
+}
+
+.text-black {
+	color: var(--db-black) !important;
+}
+
+.border-black {
+	border-color: var(--db-orange) !important;
+}
+
+.bg-black {
+	background-color: var(--db-orange) !important;
+}
+
+.bg-gray-200 {
+	background-color: #ffe8d6 !important;
+}
+
+.min-h-screen {
+	background: var(--db-cream) !important;
+	color: var(--db-black) !important;
+}
+
+/* Remover sombras duras de Tailwind */
+.shadow-2xl,
+.shadow-lg,
+.hover\:shadow-lg:hover,
+.hover\:shadow-md:hover,
+.hover\:shadow-xl:hover {
+	box-shadow: var(--shadow-lg) !important;
+}
+
+/* Usar nuestros border-radius personalizados */
+.rounded-3xl,
+.rounded-2xl {
+	border-radius: var(--radius-lg) !important;
+}
+
+.rounded-lg {
+	border-radius: var(--radius-md) !important;
+}
+
+.rounded-full {
+	border-radius: var(--radius-full) !important;
+}
+
+/* Transiciones suaves */
+.transition-all,
+.transition {
+	transition: all var(--transition-base) !important;
+}
+
+.duration-300 {
+	transition-duration: 300ms !important;
+}
+
+.ease-out {
+	transition-timing-function: var(--transition-base) !important;
+}
+
+/* ============================================
+   📱 RESPONSIVE
+   ============================================ */
+
+@media (max-width: 640px) {
+	h1 {
+		font-size: 2rem;
+	}
+
+	.character-name {
+		font-size: 1.75rem;
+	}
+
+	button,
+	.btn {
+		width: 100%;
+		min-width: auto;
+	}
+
+	.flex.flex-wrap.gap-4 button:not(.text-sm) {
+		flex: 1 1 100%;
+	}
+}
+
+@media (min-width: 641px) {
+	.flex.flex-wrap.gap-4 button:not(.text-sm) {
+		flex: 1 1 calc(33.333% - var(--spacing-sm));
+	}
+}
+
+/* ============================================
+   ✨ ANIMACIONES ESPECIALES
+   ============================================ */
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.container,
+.bg-white.border-2 {
+	animation: fadeIn 0.5s ease-out;
+}
+
+/* Animación de pulso para iconos importantes */
+@keyframes pulse {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.05);
+	}
+}
+
+.fa-crystal-ball,
+.fa-trophy {
+	animation: pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   🎯 NOTA PARA DESARROLLADORES
+   ============================================
+   
+   📌 GUÍA DE COHERENCIA VISUAL:
+   
+   1. COLORES: Usa solo la paleta --db-*
+   2. ESPACIADOS: Múltiplos de 8px (--spacing-*)
+   3. BORDES: Siempre redondeados (--radius-*)
+   4. TIPOGRAFÍA: Kanit para títulos, Inter para cuerpo
+   5. BOTONES: Gradientes naranja para primarios
+   6. SOMBRAS: Suaves con tinte naranja
+   
+   ⚠️ NO uses colores hardcodeados
+   ⚠️ NO uses border-radius: 0
+   ⚠️ NO uses box-shadow: none
+   
+   ============================================ */

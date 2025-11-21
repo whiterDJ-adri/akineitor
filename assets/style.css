@@ -1,567 +1,186 @@
-
 :root {
-	--bg: #ffffff;
-	--card: #ffffff;
-	--muted: #666666;
-	--border: #000000;
-	--ink: #000000;
-	--primary: #000000;
-	--success: #000000;
-	--warning: #000000;
-	--danger: #000000;
-	--font-mono: "Courier New", Courier, monospace;
-	--font-sans: "Arial", "Helvetica", sans-serif;
-}
-
-* {
-	box-sizing: border-box;
+  /* Paleta Dragon Ball */
+  --db-orange: #FF8B00;
+  --db-orange-dark: #CC4400;
+  --db-blue: #183375;
+  --db-blue-light: #3B82F6;
+  --db-yellow: #FFD600; /* Super Saiyan */
+  --db-dark: #1a1a1a;
+  --db-gray: #E5E7EB;
+  --db-white: #ffffff;
+  
+  /* Tipografías */
+  --font-title: 'Kanit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  
+  /* Efectos */
+  --shadow-hard: 4px 4px 0px var(--db-dark);
+  --radius-card: 16px;
+  --radius-btn: 8px;
 }
 
 body {
-	font-family: var(--font-sans);
-	background: var(--bg);
-	margin: 0;
-	min-height: 100vh;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 20px;
-	color: var(--ink);
+  font-family: var(--font-body);
+  background-color: #f0f2f5;
+  background-image: 
+    radial-gradient(#FF8B00 0.5px, transparent 0.5px), 
+    radial-gradient(#FF8B00 0.5px, #f0f2f5 0.5px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  color: var(--db-dark);
 }
 
-.container {
-	max-width: 500px;
-	width: 100%;
-	background: var(--card);
-	border: 1px solid var(--border);
-	border-radius: 0;
-	padding: 40px;
-	box-shadow: none;
-	text-align: center;
+/* Tarjeta Principal - Estilo Cápsula */
+.modern-card {
+  background: var(--db-white);
+  border: 3px solid var(--db-dark);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-hard);
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease;
 }
 
-h1 {
-	margin: 0 0 20px 0;
-	color: var(--primary);
-	font-size: 2.5rem;
-	font-weight: normal;
-	text-shadow: none;
+/* Títulos */
+h1, h2, h3 {
+  font-family: var(--font-title);
+  text-transform: uppercase;
+  font-style: italic; /* Velocidad anime */
 }
 
-h2 {
-	margin: 0 0 15px 0;
-	color: var(--ink);
-	font-size: 1.5rem;
-	font-weight: normal;
+.title-main {
+  color: var(--db-orange-dark);
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 0px var(--db-yellow);
+  margin-bottom: 1rem;
+  line-height: 1;
 }
 
-p {
-	margin: 10px 0;
-	line-height: 1.6;
-	font-weight: normal;
+/* Botones Estilo Manga */
+.btn-group {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
 }
 
-.muted {
-	color: var(--muted);
-	font-size: 0.9rem;
-}
-
-/* Estilo minimalista para las preguntas del Akineitor */
-.question {
-	background: #ffffff;
-	color: #000000;
-	padding: 20px;
-	border: 2px solid var(--border);
-	border-radius: 0;
-	margin: 20px 0;
-	font-family: var(--font-mono);
-	position: relative;
-	overflow: hidden;
-}
-
-.question::before {
-	content: "> ";
-	color: #000000;
-	font-weight: bold;
-}
-
-.question h3 {
-	color: #000000;
-	font-size: 1.2rem;
-	margin: 0;
-	font-family: var(--font-mono);
-	display: block;
-	white-space: normal;
-	word-wrap: break-word;
-	overflow: visible;
-}
-
-.question h3::after {
-	content: "_";
-	animation: blink 1s infinite;
-	color: #000000;
-	font-weight: bold;
-	margin-left: 2px;
-}
-
-/* Estilos mejorados para botones con hover visible */
 button {
-	position: relative;
-	transition: all 0.3s ease;
-	cursor: pointer;
-}
-
-button:hover {
-	transform: translateY(-2px);
+  cursor: pointer;
+  font-family: var(--font-title);
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 2px solid var(--db-dark);
+  box-shadow: 2px 2px 0px var(--db-dark);
+  transition: all 0.15s ease;
 }
 
 button:active {
-	transform: translateY(0);
-}
-
-/* Efecto de borde animado en hover */
-button::after {
-	content: "";
-	position: absolute;
-	top: -4px;
-	left: -4px;
-	right: -4px;
-	bottom: -4px;
-	border: 2px solid #000000;
-	opacity: 0;
-	transition: opacity 0.3s ease;
-	pointer-events: none;
-}
-
-button:hover::after {
-	opacity: 1;
-}
-
-/* Animación de typewriter para preguntas */
-@keyframes typewriter {
-	from {
-		width: 0;
-	}
-	to {
-		width: 100%;
-	}
-}
-
-@keyframes blink {
-	50% {
-		opacity: 0;
-	}
-}
-
-/* Estilos para el contenedor de preguntas */
-#question-text {
-	display: inline;
-	word-wrap: break-word;
-	white-space: normal;
-}
-
-.text-left {
-	text-align: left !important;
-}
-
-.progress {
-	background: #f0f0f0;
-	border: 1px solid var(--border);
-	border-radius: 0;
-	height: 20px;
-	margin: 20px 0;
-	overflow: hidden;
-}
-
-.progress-bar {
-	background: var(--ink);
-	height: 100%;
-	transition: width 0.3s ease;
-}
-
-.row {
-	display: flex;
-	gap: 10px;
-	flex-wrap: wrap;
-	margin: 25px 0;
-	justify-content: center;
-}
-
-.btn {
-	padding: 10px 20px;
-	border: 1px solid var(--border);
-	border-radius: 0;
-	background: #fff;
-	cursor: pointer;
-	font-size: 1rem;
-	font-weight: normal;
-	color: var(--ink);
-	transition: all 0.2s ease;
-	min-width: 100px;
-}
-
-.btn:hover {
-	background: var(--ink);
-	color: #fff;
-	transform: none;
-	box-shadow: none;
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--db-dark);
 }
 
 .btn-primary {
-	background: var(--ink);
-	color: #fff;
-	border-color: var(--border);
+  background-color: var(--db-orange);
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  border-radius: var(--radius-btn);
+  width: 100%;
 }
 
 .btn-primary:hover {
-	background: #fff;
-	color: var(--ink);
+  background-color: var(--db-orange-dark);
 }
 
-.btn-success {
-	background: #fff;
-	border-color: var(--border);
-	color: var(--ink);
+.btn-answer {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.8rem;
+  border-radius: var(--radius-btn);
+  background: white;
+  font-size: 1rem;
 }
 
-.btn-success:hover {
-	background: var(--ink);
-	color: #fff;
+.btn-answer:hover {
+  background: var(--db-yellow);
 }
 
-.btn-danger {
-	background: #fff;
-	border-color: var(--border);
-	color: var(--ink);
+.btn-secondary {
+  background: var(--db-blue);
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-btn);
+  font-size: 0.9rem;
 }
 
-.btn-danger:hover {
-	background: var(--ink);
-	color: #fff;
+.btn-secondary:hover {
+  background: var(--db-blue-light);
 }
 
-.btn-warning {
-	background: #fff;
-	border-color: var(--border);
-	color: var(--ink);
+/* Barras de Progreso (Estilo Ki) */
+.progress-container {
+  background: var(--db-gray);
+  height: 12px;
+  border-radius: 10px;
+  border: 2px solid var(--db-dark);
+  overflow: hidden;
+  margin: 0.5rem 0 1.5rem 0;
 }
 
-.btn-warning:hover {
-	background: var(--ink);
-	color: #fff;
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--db-yellow), var(--db-orange));
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Estilo minimalista para el resultado del Akineitor */
-.result {
-	background: #ffffff;
-	color: #000000;
-	padding: 30px;
-	border: 2px solid var(--border);
-	border-radius: 0;
-	margin: 20px 0;
-	font-family: var(--font-mono);
-	position: relative;
+/* Inputs */
+.form-input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #ddd;
+  border-radius: var(--radius-btn);
+  margin-bottom: 0.8rem;
+  font-family: var(--font-body);
 }
 
-.result::before {
-	content: "> RESULTADO ENCONTRADO";
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	font-size: 0.8rem;
-	color: #000000;
-	font-weight: bold;
+.form-input:focus {
+  border-color: var(--db-blue);
+  outline: none;
 }
 
-.result h3 {
-	margin: 20px 0 15px 0;
-	font-size: 1.2rem;
-	color: #000000;
-	font-family: var(--font-mono);
+/* Utilidades de animación */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
 
-.confidence {
-	font-size: 1rem;
-	font-weight: normal;
-	margin: 10px 0;
-	font-family: var(--font-mono);
-	color: #000000;
+.floating-img {
+  animation: float 3s ease-in-out infinite;
 }
 
-.character-name {
-	font-size: 1.5rem;
-	font-weight: bold;
-	margin: 15px 0;
-	text-shadow: none;
-	color: #000000;
-	font-family: var(--font-mono);
-	text-transform: uppercase;
+/* Estilos específicos de Resultado */
+.character-img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid var(--db-orange);
+  box-shadow: 0 0 15px var(--db-yellow);
 }
 
-.intro {
-	font-size: 1rem;
-	margin: 20px 0;
-	color: var(--muted);
-	font-weight: normal;
-}
-
-.error {
-	color: var(--ink);
-	margin-top: 0.5rem;
-	border: 1px solid var(--border);
-	padding: 10px;
-	background: #f0f0f0;
-}
-
-img.round {
-	border-radius: 0;
-	border: 1px solid var(--border);
-}
-
-/* Clases adicionales para el estilo minimalista */
-.terminal-text {
-	font-family: var(--font-mono);
-	color: #000000;
-	background: #ffffff;
-	padding: 10px;
-	border: 1px solid var(--border);
-}
-
-.cursor-blink::after {
-	content: "_";
-	animation: blink 1s infinite;
-	color: #000000;
-	font-weight: bold;
-	margin-left: 2px;
-}
-
-@keyframes blink {
-	0%,
-	49% {
-		opacity: 1;
-	}
-	50%,
-	100% {
-		opacity: 0;
-	}
-}
-
-/* Sobrescribir algunas clases de Tailwind para el estilo minimalista */
-.bg-white {
-	background-color: #ffffff !important;
-}
-
-.text-black {
-	color: #000000 !important;
-}
-
-.border-black {
-	border-color: #000000 !important;
-}
-
-.bg-black {
-	background-color: #000000 !important;
-}
-
-.bg-gray-200 {
-	background-color: #e5e7eb !important;
-}
-
-.border-gray-200,
-.border-red-200 {
-	border-color: #000000 !important;
-}
-
-.shadow-2xl,
-.shadow-lg,
-.hover\\:shadow-lg:hover,
-.hover\\:shadow-md:hover,
-.hover\\:shadow-xl:hover {
-	box-shadow: none !important;
-}
-
-.rounded-3xl,
-.rounded-2xl,
-.rounded-full,
-.rounded-lg {
-	border-radius: 0 !important;
-}
-
-.drop-shadow,
-.drop-shadow-lg {
-	filter: none !important;
-}
-
-/* Efectos hover minimalistas */
-.hover\\:scale-105:hover {
-	transform: none !important;
-}
-
-/* Asegurar que las transiciones funcionen */
-.transition-all,
-.transition {
-	transition-property: all !important;
-	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.duration-300 {
-	transition-duration: 300ms !important;
-}
-
-.ease-out {
-	transition-timing-function: cubic-bezier(0, 0, 0.2, 1) !important;
-}
-
-/* Estilo específico para cuando el Akineitor habla */
-.akineitor-speak {
-	background: #ffffff !important;
-	color: #000000 !important;
-	font-family: var(--font-mono) !important;
-	border: 2px solid #000000 !important;
-	border-radius: 0 !important;
-	position: relative;
-	overflow: hidden;
-}
-
-.akineitor-speak::before {
-	content: "> ";
-	color: #000000;
-	font-weight: bold;
-}
-
-.akineitor-speak h3 {
-	font-family: var(--font-mono) !important;
-	color: #000000 !important;
-	margin: 0 !important;
-	white-space: normal !important;
-	word-wrap: break-word !important;
-	overflow: visible !important;
-}
-
-.akineitor-speak h3::after {
-	content: "_";
-	animation: blink 1s infinite;
-	color: #000000;
-	font-weight: bold;
-	margin-left: 2px;
-}
-
-.akineitor-speak p {
-	font-family: var(--font-mono) !important;
-	color: #000000 !important;
-	white-space: normal !important;
-	word-wrap: break-word !important;
-}
-
-/* Animación de escaneo minimalista */
-.akineitor-speak::after {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: -100%;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(
-		90deg,
-		transparent,
-		rgba(0, 0, 0, 0.1),
-		transparent
-	);
-	animation: scan 3s infinite;
-}
-
-@keyframes scan {
-	0% {
-		left: -100%;
-	}
-	100% {
-		left: 100%;
-	}
-}
-
-/* Estilo para el cursor que parpadea */
-.cursor-blink::after {
-	content: "_";
-	animation: blink 1s infinite;
-	color: #000000;
-	font-weight: bold;
-	display: inline-block;
-	margin-left: 2px;
-}
-
-/* Fuente monospace */
-.font-mono {
-	font-family: var(--font-mono) !important;
-}
-
-/* Animación de texto que se escribe lentamente */
-@keyframes typewriter-slow {
-	from {
-		width: 0;
-	}
-	to {
-		width: 100%;
-	}
-}
-
-/* Efecto de matriz de datos */
-.terminal-matrix::before {
-	content: "001101010110100101011010...";
-	position: absolute;
-	top: -20px;
-	left: 0;
-	font-size: 8px;
-	color: rgba(0, 255, 0, 0.3);
-	animation: matrix 2s linear infinite;
-}
-
-@keyframes matrix {
-	0% {
-		transform: translateX(-100px);
-		opacity: 0;
-	}
-	50% {
-		opacity: 0.3;
-	}
-	100% {
-		transform: translateX(100px);
-		opacity: 0;
-	}
-}
-
-/* Sobrescribir el contenedor principal para el tema minimalista */
-.bg-white.rounded-3xl.shadow-2xl {
-	background: #ffffff !important;
-	border: 1px solid #000000 !important;
-	border-radius: 0 !important;
-	box-shadow: none !important;
-	max-width: 400px !important;
-}
-
-/* Efecto minimalista de datos */
-.terminal-matrix::before {
-	content: "001101010110100101011010...";
-	position: absolute;
-	top: -20px;
-	left: 0;
-	font-size: 8px;
-	color: rgba(0, 0, 0, 0.3);
-	animation: matrix 2s linear infinite;
-}
-
-/* Estilos adicionales para Font Awesome */
-.fa-icon {
-	margin-right: 8px;
-	font-size: 1.2em;
-}
-
-.fa-large {
-	font-size: 2em;
-	margin-bottom: 10px;
-}
-
-/* Asegurar fondo blanco y texto negro en toda la aplicación */
-.min-h-screen {
-	background: #ffffff !important;
-	color: #000000 !important;
+.badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: var(--db-dark);
+  color: var(--db-yellow);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
 }

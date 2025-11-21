@@ -20,7 +20,7 @@ class AlgorithmService
         // Seleccionar personaje objetivo aleatorio
         $res = $this->db->query("SELECT id FROM personajes ORDER BY RAND() LIMIT 1");
         $row = $res->fetch_assoc();
-        $objetivoId = $row ? (int)$row['id'] : null;
+        $objetivoId = $row ? (int) $row['id'] : null;
 
         $fields = [];
         $values = [];
@@ -29,7 +29,7 @@ class AlgorithmService
         if ($usuarioId !== null) {
             $fields[] = 'usuario_id';
             $values[] = '?';
-            $params[] = (string)$usuarioId;
+            $params[] = (string) $usuarioId;
         } else {
             $fields[] = 'usuario_id';
             $values[] = 'NULL';
@@ -38,7 +38,7 @@ class AlgorithmService
         if ($objetivoId !== null) {
             $fields[] = 'personaje_objetivo_id';
             $values[] = '?';
-            $params[] = (string)$objetivoId;
+            $params[] = (string) $objetivoId;
         } else {
             $fields[] = 'personaje_objetivo_id';
             $values[] = 'NULL';
@@ -53,13 +53,13 @@ class AlgorithmService
         $this->db->query($sql, $params);
         $rid = $this->db->query("SELECT LAST_INSERT_ID() AS id");
         $ridRow = $rid->fetch_assoc();
-        $partidaId = (int)($ridRow['id'] ?? 0);
+        $partidaId = (int) ($ridRow['id'] ?? 0);
         return ['partida_id' => $partidaId, 'personaje_objetivo_id' => $objetivoId];
     }
 
     public function getPartida(int $partidaId): ?array
     {
-        $res = $this->db->query("SELECT * FROM partidas WHERE id = ?", [(string)$partidaId]);
+        $res = $this->db->query("SELECT * FROM partidas WHERE id = ?", [(string) $partidaId]);
         $row = $res ? $res->fetch_assoc() : null;
         return $row ?: null;
     }
@@ -67,12 +67,12 @@ class AlgorithmService
     public function updatePartidaEstadoJson(int $partidaId, array $estado): void
     {
         $json = json_encode($estado, JSON_UNESCAPED_UNICODE);
-        $this->db->query("UPDATE partidas SET estado_json = ? WHERE id = ?", [$json, (string)$partidaId]);
+        $this->db->query("UPDATE partidas SET estado_json = ? WHERE id = ?", [$json, (string) $partidaId]);
     }
 
     public function completePartida(int $partidaId): void
     {
-        $this->db->query("UPDATE partidas SET estado = 'completed' WHERE id = ?", [(string)$partidaId]);
+        $this->db->query("UPDATE partidas SET estado = 'completed' WHERE id = ?", [(string) $partidaId]);
     }
 
     public function recordAnswer(int $partidaId, int $preguntaId, string $respuesta): void
@@ -84,7 +84,7 @@ class AlgorithmService
         }
         $this->db->query(
             "INSERT INTO respuestas_partida (partida_id, pregunta_id, respuesta_usuario) VALUES (?, ?, ?)",
-            [(string)$partidaId, (string)$preguntaId, $respuesta]
+            [(string) $partidaId, (string) $preguntaId, $respuesta]
         );
     }
 
@@ -95,17 +95,17 @@ class AlgorithmService
             $norm = $this->normalizeAnswer($ans);
             $exists = $this->db->query(
                 "SELECT 1 FROM personaje_pregunta WHERE personaje_id = ? AND pregunta_id = ? LIMIT 1",
-                [(string)$personajeId, (string)$qid]
+                [(string) $personajeId, (string) $qid]
             );
             if ($exists && $exists->num_rows > 0) {
                 $this->db->query(
                     "UPDATE personaje_pregunta SET respuesta_esperada = ? WHERE personaje_id = ? AND pregunta_id = ?",
-                    [$norm, (string)$personajeId, (string)$qid]
+                    [$norm, (string) $personajeId, (string) $qid]
                 );
             } else {
                 $this->db->query(
                     "INSERT INTO personaje_pregunta (personaje_id, pregunta_id, respuesta_esperada) VALUES (?, ?, ?)",
-                    [(string)$personajeId, (string)$qid, $norm]
+                    [(string) $personajeId, (string) $qid, $norm]
                 );
             }
         }
@@ -115,11 +115,11 @@ class AlgorithmService
     {
         $res = $this->db->query(
             "SELECT pregunta_id, respuesta_usuario FROM respuestas_partida WHERE partida_id = ? ORDER BY fecha ASC",
-            [(string)$partidaId]
+            [(string) $partidaId]
         );
         $asked = [];
         while ($row = $res->fetch_assoc()) {
-            $asked[(int)$row['pregunta_id']] = $row['respuesta_usuario'];
+            $asked[(int) $row['pregunta_id']] = $row['respuesta_usuario'];
         }
         return $asked;
     }
@@ -129,21 +129,26 @@ class AlgorithmService
         $res = $this->db->query("SELECT id, nombre, descripcion, imagen_url FROM personajes");
         $list = [];
         while ($row = $res->fetch_assoc()) {
-            $list[(int)$row['id']] = $row;
+            $list[(int) $row['id']] = $row;
         }
         return $list;
     }
 
     public function getAllPreguntas(): array
     {
-        $res = $this->db->query("SELECT id, texto_pregunta, tipo, opciones_json FROM preguntas");
+        // Intentar primero con opciones_json (nuevo esquema)
+        $res = $this->db->query("SELECT id, texto_pregunta, tipo FROM preguntas");
         $list = [];
         while ($row = $res->fetch_assoc()) {
-            $qid = (int)$row['id'];
-            $opts = [];
-            if (!empty($row['opciones_json'])) {
+            $qid = (int) $row['id'];
+            // Por defecto, preguntas tipo sí/no
+            $opts = ['sí', 'no', 'no lo sé'];
+
+            // Si existe opciones_json en la fila (esquema nuevo)
+            if (isset($row['opciones_json']) && !empty($row['opciones_json'])) {
                 $decoded = json_decode($row['opciones_json'], true);
-                if (is_array($decoded)) $opts = array_values($decoded);
+                if (is_array($decoded))
+                    $opts = array_values($decoded);
             }
             $list[$qid] = [
                 'id' => $qid,
@@ -157,7 +162,7 @@ class AlgorithmService
 
     public function preguntaExists(int $preguntaId): bool
     {
-        $res = $this->db->query("SELECT 1 FROM preguntas WHERE id = ? LIMIT 1", [(string)$preguntaId]);
+        $res = $this->db->query("SELECT 1 FROM preguntas WHERE id = ? LIMIT 1", [(string) $preguntaId]);
         return $res && ($res->num_rows > 0);
     }
 
@@ -166,8 +171,8 @@ class AlgorithmService
         $res = $this->db->query("SELECT personaje_id, pregunta_id, respuesta_esperada FROM personaje_pregunta");
         $map = [];
         while ($row = $res->fetch_assoc()) {
-            $pid = (int)$row['personaje_id'];
-            $qid = (int)$row['pregunta_id'];
+            $pid = (int) $row['personaje_id'];
+            $qid = (int) $row['pregunta_id'];
             $map[$pid][$qid] = $row['respuesta_esperada'];
         }
 
@@ -180,8 +185,10 @@ class AlgorithmService
             $json = $this->jsonCharsByName[$pnameNorm] ?? null;
             foreach ($preguntas as $qid => $pq) {
                 $texto = $pq['texto_pregunta'] ?? '';
-                if (!in_array($texto, $categoriaTexts, true)) continue;
-                if (isset($map[$pid][$qid])) continue; // ya existe en BD
+                if (!in_array($texto, $categoriaTexts, true))
+                    continue;
+                if (isset($map[$pid][$qid]))
+                    continue; // ya existe en BD
                 $ans = $this->evalCategoryAnswer($json, $texto);
                 $map[$pid][$qid] = $ans;
             }
@@ -192,13 +199,16 @@ class AlgorithmService
     private function loadJsonCharacters(): void
     {
         $path = __DIR__ . '/../../models/data.json';
-        if (!file_exists($path)) return;
+        if (!file_exists($path))
+            return;
         $raw = file_get_contents($path);
         $data = json_decode($raw, true);
-        if (!is_array($data)) return;
+        if (!is_array($data))
+            return;
         foreach ($data as $c) {
             $name = $c['name'] ?? null;
-            if (!$name) continue;
+            if (!$name)
+                continue;
             $this->jsonCharsByName[$this->normalizeName($name)] = $c;
         }
     }
@@ -237,7 +247,8 @@ class AlgorithmService
 
     private function evalCategoryAnswer(?array $c, string $texto): string
     {
-        if (!$c) return 'no lo sé';
+        if (!$c)
+            return 'no lo sé';
         $race = strtolower($c['race'] ?? '');
         $aff = strtolower($c['affiliation'] ?? '');
         $desc = mb_strtolower($c['description'] ?? '');
@@ -265,38 +276,56 @@ class AlgorithmService
             case '¿Forma parte de las Tropas del Orgullo?':
                 return $aff === 'pride troopers' ? 'sí' : 'no';
             case '¿Pertenece al Universo 11?':
-                if ($aff === 'pride troopers') return 'sí';
-                if (strpos($desc, 'universo 11') !== false) return 'sí';
+                if ($aff === 'pride troopers')
+                    return 'sí';
+                if (strpos($desc, 'universo 11') !== false)
+                    return 'sí';
                 return 'no';
             case '¿Aparece en Dragon Ball Super?':
-                if (strpos($desc, 'dragon ball super') !== false) return 'sí';
-                if ($aff === 'pride troopers') return 'sí';
-                if ($race === 'angel' || $race === 'god') return 'sí';
+                if (strpos($desc, 'dragon ball super') !== false)
+                    return 'sí';
+                if ($aff === 'pride troopers')
+                    return 'sí';
+                if ($race === 'angel' || $race === 'god')
+                    return 'sí';
                 return (strlen($desc) > 0 ? 'no' : 'no lo sé');
             case '¿Es una fusión?':
-                if (strpos($desc, 'fusión') !== false) return 'sí';
-                if (in_array($name, ['gotenks', 'vegito', 'gogeta'])) return 'sí';
+                if (strpos($desc, 'fusión') !== false)
+                    return 'sí';
+                if (in_array($name, ['gotenks', 'vegito', 'gogeta']))
+                    return 'sí';
                 return 'no';
             case '¿Es un villano?':
-                if (in_array($race, ['majin', 'android'])) return 'sí';
-                if ($aff === 'freelancer') return 'sí';
-                if (in_array($aff, ['army of frieza', 'pride troopers', 'z fighter'])) return 'no';
+                if (in_array($race, ['majin', 'android']))
+                    return 'sí';
+                if ($aff === 'freelancer')
+                    return 'sí';
+                if (in_array($aff, ['army of frieza', 'pride troopers', 'z fighter']))
+                    return 'no';
                 return 'no';
             case '¿Puede transformarse en Super Saiyan?':
-                if ($race === 'saiyan') return 'sí';
-                if (strpos($desc, 'super saiyan') !== false || strpos($desc, 'super saiyajin') !== false) return 'sí';
+                if ($race === 'saiyan')
+                    return 'sí';
+                if (strpos($desc, 'super saiyan') !== false || strpos($desc, 'super saiyajin') !== false)
+                    return 'sí';
                 return 'no';
             case '¿Tiene forma Golden?':
-                if (strpos($desc, 'golden') !== false) return 'sí';
-                if ($race === 'frieza race' && (strpos($name, 'frieza') !== false || strpos($name, 'freezer') !== false)) return 'sí';
+                if (strpos($desc, 'golden') !== false)
+                    return 'sí';
+                if ($race === 'frieza race' && (strpos($name, 'frieza') !== false || strpos($name, 'freezer') !== false))
+                    return 'sí';
                 return 'no';
             case '¿Aparece en Saga de Freezer?':
-                if (strpos($desc, 'saga de freezer') !== false) return 'sí';
-                if ($aff === 'army of frieza') return 'sí';
+                if (strpos($desc, 'saga de freezer') !== false)
+                    return 'sí';
+                if ($aff === 'army of frieza')
+                    return 'sí';
                 return 'no';
             case '¿Aparece en Torneo del Poder?':
-                if (strpos($desc, 'torneo del poder') !== false) return 'sí';
-                if ($aff === 'pride troopers') return 'sí';
+                if (strpos($desc, 'torneo del poder') !== false)
+                    return 'sí';
+                if ($aff === 'pride troopers')
+                    return 'sí';
                 return 'no';
             default:
                 return 'no lo sé';
@@ -307,16 +336,20 @@ class AlgorithmService
     {
         $expected = $this->normalizeAnswer($expected);
         $given = $this->normalizeAnswer($given);
-        if ($expected === $given) return 1.0;
+        if ($expected === $given)
+            return 1.0;
         // Desconocido (sin mapeo o respuesta "no lo sé"): neutro-controlado
         // Reducimos el peso para evitar que candidatos con muchos "no lo sé"
         // dominen el ranking.
-        if ($expected === 'no lo sé' || $given === 'no lo sé') return 0.6;
+        if ($expected === 'no lo sé' || $given === 'no lo sé')
+            return 0.6;
         // aproximaciones binarias con mayor separación
         $nearYes = ['sí' => 1.0, 'probablemente' => 0.8, 'probablemente no' => 0.2, 'no' => 0.01];
-        $nearNo  = ['no' => 1.0, 'probablemente no' => 0.8, 'probablemente' => 0.2, 'sí' => 0.01];
-        if ($expected === 'sí') return $nearYes[$given] ?? 0.5;
-        if ($expected === 'no') return $nearNo[$given] ?? 0.5;
+        $nearNo = ['no' => 1.0, 'probablemente no' => 0.8, 'probablemente' => 0.2, 'sí' => 0.01];
+        if ($expected === 'sí')
+            return $nearYes[$given] ?? 0.5;
+        if ($expected === 'no')
+            return $nearNo[$given] ?? 0.5;
         if ($expected === 'probablemente') {
             return match ($given) {
                 'sí' => 0.8,
@@ -365,10 +398,11 @@ class AlgorithmService
 
     public function selectNextQuestion(array $askedIds, array $probs, array $mapping, array $preguntas): ?int
     {
-        
+
         $allQIds = array_keys($preguntas);
         $remaining = array_values(array_diff($allQIds, $askedIds));
-        if (empty($remaining)) return null;
+        if (empty($remaining))
+            return null;
         $bestQ = null;
         $bestH = -1.0;
 
@@ -394,10 +428,11 @@ class AlgorithmService
 
         foreach ($remainingToConsider as $qid) {
             $q = $preguntas[$qid] ?? null;
-            if (!$q) continue;
+            if (!$q)
+                continue;
             $answers = ['no lo sé'];
             if (($q['tipo'] ?? '') === 'multiple_choice') {
-                $answers = array_merge((array)($q['opciones'] ?? []), ['no lo sé']);
+                $answers = array_merge((array) ($q['opciones'] ?? []), ['no lo sé']);
             } else {
                 $answers = ['sí', 'no', 'probablemente', 'probablemente no', 'no lo sé'];
             }
@@ -412,11 +447,12 @@ class AlgorithmService
                 }
             }
             $total = array_sum($dist);
-            if ($total <= 0) continue;
+            if ($total <= 0)
+                continue;
             $H = 0.0;
             foreach ($dist as $v) {
                 if ($v > 0) {
-                    $H += - ($v / $total) * log($v / $total, 2);
+                    $H += -($v / $total) * log($v / $total, 2);
                 }
             }
             $H *= $this->domainRelevanceBoost($q['texto_pregunta'] ?? '');
@@ -430,12 +466,14 @@ class AlgorithmService
 
     private function filterContradictoryOrRedundant(array $candidates, array $preguntas, array $askedIds, array $mapping, array $probs): array
     {
-        
-        if (empty($askedIds)) return $candidates;
+
+        if (empty($askedIds))
+            return $candidates;
         $askedByText = [];
         foreach ($askedIds as $qid) {
             $texto = $preguntas[$qid]['texto_pregunta'] ?? null;
-            if ($texto) $askedByText[$texto] = $qid;
+            if ($texto)
+                $askedByText[$texto] = $qid;
         }
         $rules = $this->getContradictionRules();
         $exclude = [];
@@ -443,7 +481,8 @@ class AlgorithmService
             $ifText = $rule['if_text'];
             $ifAns = $rule['if_answer'];
             $thenText = $rule['then_exclude_text'];
-            if (!isset($askedByText[$ifText])) continue;
+            if (!isset($askedByText[$ifText]))
+                continue;
             $qidAsked = $askedByText[$ifText];
             $given = $this->normalizeAnswer($this->mappingTopAnswerForAsked($qidAsked, $mapping, $probs));
             $givenUser = null;
@@ -453,20 +492,22 @@ class AlgorithmService
             if ($givenUser === $this->normalizeAnswer($ifAns)) {
                 foreach ($candidates as $cid) {
                     $textoC = $preguntas[$cid]['texto_pregunta'] ?? '';
-                    if ($textoC === $thenText) $exclude[$cid] = true;
+                    if ($textoC === $thenText)
+                        $exclude[$cid] = true;
                 }
             }
         }
         $filtered = [];
         foreach ($candidates as $cid) {
-            if (!isset($exclude[$cid])) $filtered[] = $cid;
+            if (!isset($exclude[$cid]))
+                $filtered[] = $cid;
         }
         return $filtered;
     }
 
     private function getContradictionRules(): array
     {
-        
+
         return [
             ['if_text' => '¿Forma parte de los Guerreros Z?', 'if_answer' => 'sí', 'then_exclude_text' => '¿Es un villano?'],
             ['if_text' => '¿Pertenece a la raza Saiyan?', 'if_answer' => 'sí', 'then_exclude_text' => '¿Pertenece a la raza Humana?'],
@@ -478,7 +519,7 @@ class AlgorithmService
 
     private function domainRelevanceBoost(string $texto): float
     {
-        
+
         $race = [
             '¿Pertenece a la raza Saiyan?',
             '¿Pertenece a la raza Humana?',
@@ -504,20 +545,25 @@ class AlgorithmService
             '¿Aparece en Torneo del Poder?',
             '¿Aparece en Dragon Ball Super?',
         ];
-        if (in_array($texto, $race, true)) return 1.25;
-        if (in_array($texto, $align, true)) return 1.2;
-        if (in_array($texto, $transform, true)) return 1.15;
-        if (in_array($texto, $saga, true)) return 1.1;
+        if (in_array($texto, $race, true))
+            return 1.25;
+        if (in_array($texto, $align, true))
+            return 1.2;
+        if (in_array($texto, $transform, true))
+            return 1.15;
+        if (in_array($texto, $saga, true))
+            return 1.1;
         return 1.0;
     }
 
     private function mappingTopAnswerForAsked(int $qid, array $mapping, array $probs): string
     {
-        
+
         $sorted = $probs;
         arsort($sorted);
         foreach ($sorted as $pid => $_p) {
-            if (isset($mapping[$pid][$qid])) return $mapping[$pid][$qid];
+            if (isset($mapping[$pid][$qid]))
+                return $mapping[$pid][$qid];
         }
         return 'no lo sé';
     }
@@ -526,11 +572,16 @@ class AlgorithmService
     {
         $a = trim(mb_strtolower($ans));
         // normalización de variantes
-        if ($a === 'si') $a = 'sí';
-        if ($a === 'ns') $a = 'no lo sé';
-        if ($a === 'probablemente si') $a = 'probablemente';
-        if ($a === 'probablemente sí') $a = 'probablemente';
-        if ($a === 'no lo se' || $a === 'no se') $a = 'no lo sé';
+        if ($a === 'si')
+            $a = 'sí';
+        if ($a === 'ns')
+            $a = 'no lo sé';
+        if ($a === 'probablemente si')
+            $a = 'probablemente';
+        if ($a === 'probablemente sí')
+            $a = 'probablemente';
+        if ($a === 'no lo se' || $a === 'no se')
+            $a = 'no lo sé';
         return $a;
     }
 }

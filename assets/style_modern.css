@@ -1,0 +1,241 @@
+:root {
+	/* Paleta Dragon Ball - Refined */
+	--db-orange: #ff6600; /* Más vibrante, estilo manga */
+	--db-blue: #002244; /* Azul oscuro profundo */
+	--db-yellow: #ffd600;
+	--db-black: #000000;
+	--db-white: #ffffff;
+	--db-gray: #f3f4f6;
+
+	/* Grid & Layout */
+	--grid-border-color: #000000;
+	--grid-border-width: 2px;
+
+	/* Tipografías */
+	--font-title: "Kanit", sans-serif;
+	--font-body: "Inter", sans-serif;
+}
+
+body {
+	font-family: var(--font-body);
+	background-color: var(--db-black);
+	color: var(--db-black);
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+}
+
+/* Layout Principal - Estilo Grid Suizo */
+.main-container {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	background: var(--db-white);
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	border-left: var(--grid-border-width) solid var(--grid-border-color);
+	border-right: var(--grid-border-width) solid var(--grid-border-color);
+	position: relative;
+}
+
+/* Grid Lines Background Effect */
+.bg-grid-pattern {
+	background-size: 40px 40px;
+	background-image: linear-gradient(
+			to right,
+			rgba(0, 0, 0, 0.05) 1px,
+			transparent 1px
+		),
+		linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+/* Header Bar */
+.header-bar {
+	border-bottom: var(--grid-border-width) solid var(--grid-border-color);
+	padding: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+/* Typography Overrides */
+h1,
+h2,
+h3,
+.font-title {
+	font-family: var(--font-title);
+	text-transform: uppercase;
+	letter-spacing: -0.02em;
+}
+
+/* Botones Estilo Bloque */
+.btn-block-style {
+	background: transparent;
+	border: var(--grid-border-width) solid var(--grid-border-color);
+	color: var(--db-black);
+	font-family: var(--font-title);
+	font-weight: 900;
+	text-transform: uppercase;
+	padding: 1rem 2rem;
+	transition: all 0.2s ease;
+	position: relative;
+	overflow: hidden;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.btn-block-style:hover {
+	background: var(--db-black);
+	color: var(--db-white);
+	transform: translate(-2px, -2px);
+	box-shadow: 4px 4px 0 var(--db-orange);
+}
+
+.btn-primary-grid {
+	background: var(--db-orange);
+	border: var(--grid-border-width) solid var(--db-black);
+	color: var(--db-black);
+}
+
+.btn-primary-grid:hover {
+	background: var(--db-black);
+	color: var(--db-orange);
+	box-shadow: 4px 4px 0 var(--db-white);
+}
+
+/* Inputs */
+.input-grid {
+	border: var(--grid-border-width) solid var(--grid-border-color);
+	padding: 1rem;
+	font-family: var(--font-body);
+	font-weight: 600;
+	width: 100%;
+	outline: none;
+	transition: background 0.2s;
+}
+
+.input-grid:focus {
+	background: var(--db-yellow);
+}
+
+/* Utility Borders */
+.border-b-black {
+	border-bottom: var(--grid-border-width) solid var(--grid-border-color);
+}
+.border-t-black {
+	border-top: var(--grid-border-width) solid var(--grid-border-color);
+}
+.border-l-black {
+	border-left: var(--grid-border-width) solid var(--grid-border-color);
+}
+.border-r-black {
+	border-right: var(--grid-border-width) solid var(--grid-border-color);
+}
+
+/* Animations */
+@keyframes float {
+	0% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
+	100% {
+		transform: translateY(0px);
+	}
+}
+.animate-float {
+	animation: float 4s ease-in-out infinite;
+}
+
+/* --- Legacy / Adapted Styles --- */
+
+.title-main {
+	color: var(--db-orange);
+	font-size: 4rem;
+	line-height: 0.9;
+	margin-bottom: 2rem;
+	text-transform: uppercase;
+	font-weight: 900;
+	letter-spacing: -0.05em;
+}
+
+/* Grid Layout Helpers */
+.grid-row {
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	border-bottom: var(--grid-border-width) solid var(--grid-border-color);
+}
+
+.grid-col-span-12 {
+	grid-column: span 12;
+}
+.grid-col-span-6 {
+	grid-column: span 6;
+}
+.grid-col-span-4 {
+	grid-column: span 4;
+}
+
+@media (max-width: 768px) {
+	.grid-col-span-6,
+	.grid-col-span-4 {
+		grid-column: span 12;
+	}
+}
+
+.grid-cell {
+	padding: 2rem;
+	border-right: var(--grid-border-width) solid var(--grid-border-color);
+}
+
+.grid-cell:last-child {
+	border-right: none;
+}
+
+/* Progress Bar (Grid Style) */
+.progress-container-grid {
+	width: 100%;
+	height: 2rem;
+	border: var(--grid-border-width) solid var(--grid-border-color);
+	background: var(--db-white);
+	position: relative;
+}
+
+.progress-fill-grid {
+	height: 100%;
+	background: var(--db-orange);
+	border-right: var(--grid-border-width) solid var(--grid-border-color);
+	transition: width 0.3s ease;
+}
+
+/* Floating Animation */
+.floating-img {
+	animation: float 3s ease-in-out infinite;
+}
+
+/* Badge Grid Style */
+.badge-grid {
+	background: var(--db-black);
+	color: var(--db-white);
+	padding: 0.25rem 0.75rem;
+	font-family: var(--font-title);
+	font-weight: bold;
+	text-transform: uppercase;
+	font-size: 0.8rem;
+	display: inline-block;
+	margin-bottom: 1rem;
+}
+
+/* Specific Overrides */
+.character-img-grid {
+	width: 100%;
+	max-width: 300px;
+	height: auto;
+	display: block;
+	margin: 0 auto;
+	filter: drop-shadow(10px 10px 0px rgba(0, 0, 0, 0.1));
+}
