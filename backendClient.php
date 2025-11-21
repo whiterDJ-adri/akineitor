@@ -235,6 +235,38 @@ class BackendClient
         }
     }
 
+    public function continuar(string $partidaId): array
+    {
+        try {
+            $resp = $this->makeApiCall('/api/algorithm/continue', ['partida_id' => $partidaId]);
+            $preguntaActual = $resp['pregunta_actual'] ?? null;
+            $preguntasRespondidas = $resp['preguntas_respondidas'] ?? 0;
+            if (!$preguntaActual) {
+                $retry = $this->makeApiCall('/api/algorithm/step', ['partida_id' => $partidaId]);
+                $preguntaActual = $retry['pregunta_actual'] ?? null;
+                $preguntasRespondidas = $retry['preguntas_respondidas'] ?? $preguntasRespondidas;
+            }
+            if (!$preguntaActual) {
+                return [ 'pregunta' => null, 'progreso' => ['paso' => $preguntasRespondidas, 'total' => (int)($resp['total_preguntas'] ?? 12)] ];
+            }
+            $pregunta = [
+                'id' => $preguntaActual['id'],
+                'texto' => $preguntaActual['texto']
+            ];
+            $total = (int)($resp['total_preguntas'] ?? 12);
+            $progreso = [
+                'paso' => $preguntasRespondidas + 1,
+                'total' => $total
+            ];
+            return [
+                'pregunta' => $pregunta,
+                'progreso' => $progreso,
+            ];
+        } catch (Exception $e) {
+            throw new RuntimeException("Error al continuar: " . $e->getMessage());
+        }
+    }
+
     public function corregir(string $partidaId, int $personajeId): array
     {
         try {

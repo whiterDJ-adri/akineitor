@@ -62,6 +62,15 @@ $porcentaje = (int) round($conf * 100);
             </button>
         </form>
 
+        <form action="index.php?action=continuar" method="post">
+            <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+            <button
+                class="bg-white hover:bg-black border-2 border-black text-black hover:text-white font-semibold px-6 py-3 transition-all duration-300"
+                type="submit">
+                <i class="fas fa-forward fa-icon"></i> Seguir jugando
+            </button>
+        </form>
+
         <form action="index.php" method="GET">
             <button
                 class="bg-white hover:bg-black border-2 border-black text-black hover:text-white font-semibold px-6 py-3 transition-all duration-300"
