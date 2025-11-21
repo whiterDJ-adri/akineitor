@@ -15,22 +15,14 @@ require_once __DIR__ . '/modules/auth/AuthModule.php';
 require_once __DIR__ . '/modules/algorithm/AlgorithmService.php';
 require_once __DIR__ . '/modules/algorithm/AlgorithmController.php';
 require_once __DIR__ . '/modules/algorithm/AlgorithmModule.php';
-require_once __DIR__ . '/modules/catalog/CatalogService.php';
-require_once __DIR__ . '/modules/catalog/CatalogController.php';
-require_once __DIR__ . '/modules/catalog/CatalogModule.php';
 
 use Core\Request;
-use Core\Response;
 use Core\Router;
 use Core\Container;
 use Core\Cors;
-use Modules\Health\HealthController;
 use Modules\Health\HealthModule;
-use Modules\Auth\AuthService;
-use Modules\Auth\AuthController;
 use Modules\Auth\AuthModule;
 use Modules\Algorithm\AlgorithmModule;
-use Modules\Catalog\CatalogModule;
 
 Cors::apply();
 
@@ -48,6 +40,5 @@ $prefix = '/api';
 (new HealthModule())->register($container, $router, $prefix);
 (new AuthModule())->register($container, $router, $prefix);
 (new AlgorithmModule())->register($container, $router, $prefix);
-(new CatalogModule())->register($container, $router, $prefix);
 
 $router->dispatch($req);
