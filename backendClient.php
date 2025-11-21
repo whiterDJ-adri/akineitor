@@ -115,9 +115,10 @@ class BackendClient
                 'texto' => $preguntaActual['texto']
             ];
 
+            $total = (int)($response['total_preguntas'] ?? 12);
             $progreso = [
                 'paso' => $preguntasRespondidas + 1,
-                'total' => 12
+                'total' => $total
             ];
 
             return [
@@ -143,6 +144,7 @@ class BackendClient
             // Llamar a la API con la partida y respuesta
             $apiData = [
                 'partida_id' => $partidaId,
+                'pregunta_id' => (int)$preguntaId,
                 'respuesta' => $respuesta
             ];
 
@@ -174,33 +176,17 @@ class BackendClient
                     ]
                 ];
             } else {
-                // Devolver siguiente pregunta o degradar a resultado si falta la pregunta
+                // Devolver siguiente pregunta
                 if (!$preguntaActual) {
-                    $personajePrincipal = $personajesPosibles[0] ?? null;
-                    if ($personajePrincipal) {
-                        return [
-                            'resultado' => [
-                                'personaje' => [
-                                    'id' => $personajePrincipal['id'],
-                                    'nombre' => $personajePrincipal['nombre'],
-                                    'imagenUrl' => null
-                                ],
-                                'confianza' => $probabilidad,
-                                'personajes_alternativos' => array_slice($personajesPosibles, 1, 4)
-                            ]
-                        ];
+                    // Intentar recuperar la siguiente pregunta mediante nueva llamada sin respuesta
+                    $retry = $this->makeApiCall('/api/algorithm/step', ['partida_id' => $partidaId]);
+                    $preguntaActual = $retry['pregunta_actual'] ?? null;
+                    $preguntasRespondidas = $retry['preguntas_respondidas'] ?? $preguntasRespondidas;
+                    $personajesPosibles = $retry['personajes_posibles'] ?? $personajesPosibles;
+                    $probabilidad = $retry['probabilidad'] ?? $probabilidad;
+                    if (!$preguntaActual) {
+                        throw new RuntimeException('Sin pregunta disponible, reintentar más tarde');
                     }
-                    return [
-                        'resultado' => [
-                            'personaje' => [
-                                'id' => 0,
-                                'nombre' => 'Desconocido',
-                                'imagenUrl' => null
-                            ],
-                            'confianza' => 0,
-                            'personajes_alternativos' => []
-                        ]
-                    ];
                 }
 
                 $pregunta = [
@@ -208,9 +194,10 @@ class BackendClient
                     'texto' => $preguntaActual['texto']
                 ];
 
+                $total = (int)($response['total_preguntas'] ?? 12);
                 $progreso = [
                     'paso' => $preguntasRespondidas + 1,
-                    'total' => 12
+                    'total' => $total
                 ];
 
                 return [
@@ -235,6 +222,33 @@ class BackendClient
         }
     }
 
+    public function continuar(string $partidaId): array
+    {
+        try {
+            $resp = $this->makeApiCall('/api/algorithm/continue', ['partida_id' => $partidaId]);
+            $preguntaActual = $resp['pregunta_actual'] ?? null;
+            $preguntasRespondidas = $resp['preguntas_respondidas'] ?? 0;
+            if (!$preguntaActual) {
+                throw new RuntimeException('No hay pregunta para continuar');
+            }
+            $pregunta = [
+                'id' => $preguntaActual['id'],
+                'texto' => $preguntaActual['texto']
+            ];
+            $total = (int)($resp['total_preguntas'] ?? 12);
+            $progreso = [
+                'paso' => $preguntasRespondidas + 1,
+                'total' => $total
+            ];
+            return [
+                'pregunta' => $pregunta,
+                'progreso' => $progreso,
+            ];
+        } catch (Exception $e) {
+            throw new RuntimeException("Error al continuar: " . $e->getMessage());
+        }
+    }
+
     public function corregir(string $partidaId, int $personajeId): array
     {
         try {
@@ -246,21 +260,6 @@ class BackendClient
             return $resp;
         } catch (Exception $e) {
             throw new RuntimeException("Error al corregir: " . $e->getMessage());
-        }
-    }
-
-    public function sugerirPersonaje(string $nombre, ?string $descripcion = null, ?string $imagenUrl = null): array
-    {
-        try {
-            $payload = [
-                'nombre' => $nombre,
-                'descripcion' => $descripcion,
-                'imagen_url' => $imagenUrl,
-            ];
-            $resp = $this->makeApiCall('/api/catalog/characters/create', $payload);
-            return $resp;
-        } catch (Exception $e) {
-            throw new RuntimeException("Error al sugerir personaje: " . $e->getMessage());
         }
     }
 }

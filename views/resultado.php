@@ -37,6 +37,22 @@ $porcentaje = (int) round($conf * 100);
             <i class="fas fa-percentage fa-icon"></i> Confianza: <?= $porcentaje ?>%
         </div>
 
+        <?php if (!empty($confirmacion_requerida)): ?>
+            <div class="bg-yellow-100 border-2 border-black p-4 mb-4">
+                <p class="text-black font-mono"><i class="fas fa-exclamation-triangle"></i> ¿Es correcto este personaje?</p>
+                <div class="flex gap-3 mt-3 justify-center">
+                    <form action="index.php?action=reiniciar" method="post">
+                        <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+                        <button class="bg-white hover:bg-black border-2 border-black text-black hover:text-white font-semibold px-4 py-2" type="submit">Sí, confirmar</button>
+                    </form>
+                    <form action="index.php?action=continuar" method="post">
+                        <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+                        <button class="bg-white hover:bg-black border-2 border-black text-black hover:text-white font-semibold px-4 py-2" type="submit">No, continuar</button>
+                    </form>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <?php if ($porcentaje >= 90): ?>
             <p class="text-sm text-black font-mono">
                 <i class="fas fa-bullseye fa-icon"></i> ¡Estoy muy seguro de que es correcto!
@@ -59,6 +75,15 @@ $porcentaje = (int) round($conf * 100);
                 class="bg-white hover:bg-black border-2 border-black text-black hover:text-white font-semibold px-6 py-3 transition-all duration-300"
                 type="submit">
                 <i class="fas fa-redo fa-icon"></i> Jugar de nuevo
+            </button>
+        </form>
+
+        <form action="index.php?action=continuar" method="post">
+            <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+            <button
+                class="bg-white hover:bg-black border-2 border-black text-black hover:text-white font-semibold px-6 py-3 transition-all duration-300"
+                type="submit">
+                <i class="fas fa-forward fa-icon"></i> No, continuar
             </button>
         </form>
 

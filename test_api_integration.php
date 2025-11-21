@@ -63,6 +63,19 @@ function testApiIntegration()
         echo "✅ Partida reiniciada:<br>\n";
         echo "- Nueva pregunta: " . $resultado3['pregunta']['texto'] . "<br>\n";
 
+        // Verificar finalización dentro de 12 pasos
+        $pasos = 1;
+        $pid = $resultado3['pregunta']['id'];
+        while ($pasos <= 12) {
+            $r = $client->responder($partidaId, ['preguntaId' => $pid, 'respuesta' => ($pasos % 2 === 0 ? 'no' : 'si')]);
+            if (isset($r['resultado'])) {
+                echo "✅ Finalizada con resultado: " . $r['resultado']['personaje']['nombre'] . "<br>\n";
+                break;
+            }
+            $pid = $r['pregunta']['id'];
+            $pasos++;
+        }
+
     } catch (Exception $e) {
         echo "❌ Error: " . $e->getMessage() . "<br>\n";
     }

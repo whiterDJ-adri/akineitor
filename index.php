@@ -111,6 +111,29 @@ switch ($action) {
         redirect('index.php?action=home');
         break;
 
+    case 'continuar':
+        if (!csrf_check($_POST['_csrf'] ?? '')) {
+            http_response_code(419);
+            die('CSRF inválido');
+        }
+        $partidaId = $_SESSION['partidaId'] ?? null;
+        if (!$partidaId) {
+            $_SESSION['flash_error'] = 'No hay partida activa para continuar.';
+            redirect('index.php?action=home');
+        }
+        try {
+            $api = new BackendClient();
+            $resp = $api->continuar($partidaId);
+            $_SESSION['pregunta'] = $resp['pregunta'] ?? null;
+            $_SESSION['progreso'] = $resp['progreso'] ?? null;
+            $_SESSION['resultado'] = null;
+            redirect('index.php?action=home');
+        } catch (Throwable $e) {
+            $_SESSION['flash_error'] = 'No se pudo continuar la partida.';
+            redirect('index.php?action=home');
+        }
+        break;
+
     case 'corregir':
         if (!csrf_check($_POST['_csrf'] ?? '')) {
             http_response_code(419);
@@ -146,7 +169,6 @@ switch ($action) {
         }
         try {
             $api = new BackendClient();
-            $api->sugerirPersonaje($nombre, $descripcion, $imagen);
             $_SESSION['flash_error'] = null;
         } catch (Throwable $e) {
             $_SESSION['flash_error'] = 'No se pudo sugerir el personaje.';
