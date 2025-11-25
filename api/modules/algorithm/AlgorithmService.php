@@ -338,61 +338,109 @@ class AlgorithmService
         $given = $this->normalizeAnswer($given);
         if ($expected === $given)
             return 1.0;
-        // Desconocido (sin mapeo o respuesta "no lo sé"): neutro-controlado
-        // Reducimos el peso para evitar que candidatos con muchos "no lo sé"
-        // dominen el ranking.
+
+        // Cuando no hay información (no lo sé), ser más neutral para no penalizar tanto
         if ($expected === 'no lo sé' || $given === 'no lo sé')
-            return 0.6;
-        // aproximaciones binarias con mayor separación
-        $nearYes = ['sí' => 1.0, 'probablemente' => 0.8, 'probablemente no' => 0.2, 'no' => 0.01];
-        $nearNo = ['no' => 1.0, 'probablemente no' => 0.8, 'probablemente' => 0.2, 'sí' => 0.01];
+            return 0.85; // Aumentado de 0.6 a 0.85 para ser más permisivo
+
+        // Aproximaciones binarias con mayor recompensa por aciertos y penalización por errores claros
+        $nearYes = ['sí' => 1.0, 'probablemente' => 0.9, 'probablemente no' => 0.3, 'no' => 0.05];
+        $nearNo = ['no' => 1.0, 'probablemente no' => 0.9, 'probablemente' => 0.3, 'sí' => 0.05];
+
         if ($expected === 'sí')
             return $nearYes[$given] ?? 0.5;
         if ($expected === 'no')
             return $nearNo[$given] ?? 0.5;
         if ($expected === 'probablemente') {
             return match ($given) {
-                'sí' => 0.8,
+                'sí' => 0.9,
                 'probablemente' => 1.0,
-                'no lo sé' => 0.9,
-                'probablemente no' => 0.5,
-                'no' => 0.2,
+                'no lo sé' => 0.85,
+                'probablemente no' => 0.4,
+                'no' => 0.1,
                 default => 0.6,
             };
         }
         if ($expected === 'probablemente no') {
             return match ($given) {
-                'no' => 0.8,
+                'no' => 0.9,
                 'probablemente no' => 1.0,
-                'no lo sé' => 0.9,
-                'probablemente' => 0.5,
-                'sí' => 0.2,
+                'no lo sé' => 0.85,
+                'probablemente' => 0.4,
+                'sí' => 0.1,
                 default => 0.6,
             };
         }
-        // Para categorías no binarias (si existieran), penalizar fuerte el desacierto
-        return 0.05;
+        // Para categorías no binarias (si existieran), penalizar el desacierto
+        return 0.1;
     }
 
     public function computeProbabilities(array $asked, array $personajes, array $mapping): array
     {
         $probs = [];
         $epsilon = 1e-9;
+
+        // Prior uniforme: todos los personajes empiezan con la misma probabilidad base
+        $numPersonajes = count($personajes);
+        $numPreguntas = count($asked);
+
+        // Debug: log para ver qué está pasando
+        error_log("[AlgorithmService] Computing probabilities for " . $numPersonajes . " characters with " . $numPreguntas . " questions");
+
         foreach ($personajes as $pid => $_) {
-            $prob = 1.0;
+            // Usar un enfoque de scoring aditivo en lugar de multiplicativo
+            $score = 0.0;
+            $matchCount = 0;
+            $mismatchCount = 0;
+            $unknownCount = 0;
+
             foreach ($asked as $qid => $ans) {
                 $expected = $mapping[$pid][$qid] ?? 'no lo sé';
-                $prob *= $this->compatibility($expected, $this->normalizeAnswer($ans));
+                $givenNorm = $this->normalizeAnswer($ans);
+                $compat = $this->compatibility($expected, $givenNorm);
+
+                // Puntuación logarítmica para evitar que un solo 0 mate la probabilidad
+                if ($compat >= 0.95) {
+                    $score += 3.0; // Match perfecto
+                    $matchCount++;
+                } elseif ($compat >= 0.8) {
+                    $score += 2.0; // Buena compatibilidad
+                    $matchCount++;
+                } elseif ($compat >= 0.5) {
+                    $score += 0.5; // Neutral/desconocido
+                    $unknownCount++;
+                } elseif ($compat >= 0.2) {
+                    $score -= 1.0; // Incompatibilidad leve
+                    $mismatchCount++;
+                } else {
+                    $score -= 3.0; // Incompatibilidad fuerte
+                    $mismatchCount++;
+                }
             }
-            $probs[$pid] = max($prob, $epsilon);
+
+            // Convertir score a probabilidad usando exponencial
+            $probs[$pid] = exp($score / max($numPreguntas, 1));
+
+            // Debug para el personaje con mejor score
+            if ($pid === 1 || $score > 5) {
+                error_log("[AlgorithmService] Personaje {$pid}: score=$score, matches=$matchCount, mismatches=$mismatchCount, unknown=$unknownCount");
+            }
         }
-        // Normalizar
+
+        // Normalizar para que sumen 1.0
         $sum = array_sum($probs);
         if ($sum > 0) {
             foreach ($probs as $pid => $p) {
                 $probs[$pid] = $p / $sum;
             }
         }
+
+        // Debug: mostrar top 3
+        $sorted = $probs;
+        arsort($sorted);
+        $top3 = array_slice($sorted, 0, 3, true);
+        error_log("[AlgorithmService] Top 3 probabilities: " . json_encode($top3));
+
         return $probs;
     }
 

@@ -10,7 +10,7 @@
             <?php if (isset($confianza)): ?>
                 <?php $pc = (int) round(((float) $confianza) * 100); ?>
                 <div class="flex justify-between text-xs font-mono uppercase mb-2">
-                    <span>Analysis Confidence</span>
+                    <span>Confianza del Análisis</span>
                     <span><?= $pc ?>%</span>
                 </div>
                 <div class="progress-container-grid">
@@ -35,11 +35,11 @@
 
         <button class="grid-col-span-4 btn-block-style hover:bg-[var(--db-orange)] hover:text-white border-r-black"
             type="submit" name="respuesta" value="si">
-            YES
+            SÍ
         </button>
         <button class="grid-col-span-4 btn-block-style hover:bg-gray-800 hover:text-white border-r-black" type="submit"
             name="respuesta" value="ns">
-            DON'T KNOW
+            NO SÉ
         </button>
         <button class="grid-col-span-4 btn-block-style hover:bg-red-600 hover:text-white" type="submit" name="respuesta"
             value="no">
@@ -52,7 +52,7 @@
         <form action="index.php?action=reiniciar" method="post">
             <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
             <button class="text-xs text-gray-400 hover:text-black font-mono uppercase" type="submit">
-                [ RESET SYSTEM ]
+                [ REINICIAR SISTEMA ]
             </button>
         </form>
     </div>

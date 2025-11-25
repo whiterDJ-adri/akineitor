@@ -25,7 +25,7 @@
     <header class="header-bar">
       <div class="font-title font-bold text-xl tracking-tighter">AKINEITOR <span
           class="text-[var(--db-orange)]">DBZ</span></div>
-      <div class="text-xs font-mono uppercase tracking-widest">System Online</div>
+      <div class="text-xs font-mono uppercase tracking-widest">Sistema Activo</div>
     </header>
 
     <main class="flex-grow flex flex-col justify-center">
@@ -33,7 +33,7 @@
     </main>
 
     <footer class="border-t-black p-4 text-center text-xs font-mono uppercase text-gray-400">
-      Capsule Corp. Technology &copy; <?= date('Y') ?>
+      Tecnología Capsule Corp. &copy; <?= date('Y') ?>
     </footer>
   </div>
 </body>

@@ -7,14 +7,16 @@ use Core\Response;
 
 class AlgorithmController
 {
-    public function __construct(private AlgorithmService $service) {}
+    public function __construct(private AlgorithmService $service)
+    {
+    }
 
     public function step(Request $req, Response $res): void
     {
         error_log('[AlgorithmController] step');
         $partidaIdRaw = $req->body['partida_id'] ?? null;
         $respuesta = $req->body['respuesta'] ?? null;
-        $partidaId = $partidaIdRaw !== null && $partidaIdRaw !== '' ? (int)$partidaIdRaw : null;
+        $partidaId = $partidaIdRaw !== null && $partidaIdRaw !== '' ? (int) $partidaIdRaw : null;
 
         if ($partidaId === null) {
             $created = $this->service->createNewGame(null);
@@ -26,12 +28,13 @@ class AlgorithmController
         $estado = [];
         if ($estadoJson) {
             $decoded = json_decode($estadoJson, true);
-            if (is_array($decoded)) $estado = $decoded;
+            if (is_array($decoded))
+                $estado = $decoded;
         }
 
         $ultimaPreguntaId = $estado['ultima_pregunta_id'] ?? null;
         if ($respuesta && $ultimaPreguntaId) {
-            $this->service->recordAnswer($partidaId, (int)$ultimaPreguntaId, (string)$respuesta);
+            $this->service->recordAnswer($partidaId, (int) $ultimaPreguntaId, (string) $respuesta);
         }
 
         $asked = $this->service->getAskedAnswers($partidaId);
@@ -53,15 +56,32 @@ class AlgorithmController
 
         // Umbral dinámico según número de preguntas ya respondidas
         $askedCount = count($askedIds);
-        $threshold = 0.8;
-        if ($askedCount >= 8) $threshold = 0.75;
-        if ($askedCount >= 10) $threshold = 0.7;
-        if ($askedCount >= 12) $threshold = 0.65;
-        $ratioThreshold = ($askedCount >= 10) ? 1.4 : 1.6;
+
+        // Configuración mejorada para evitar adivinanzas prematuras
+        $minQuestions = 6; // Mínimo de 6 preguntas antes de poder adivinar
+        $maxQuestions = 15; // Aumentado a 15 para dar más margen
+
+        // Umbral de confianza ajustado (más alcanzable pero aún razonable)
+        $threshold = 0.75; // Requiere 75% de confianza por defecto
+        if ($askedCount >= 8)
+            $threshold = 0.70; // 70% después de 8 preguntas
+        if ($askedCount >= 10)
+            $threshold = 0.65; // 65% después de 10 preguntas
+        if ($askedCount >= 12)
+            $threshold = 0.60; // 60% después de 12 preguntas
+
+        // Ratio para considerar que hay un líder claro (el primero es mucho más probable que el segundo)
+        $ratioThreshold = ($askedCount >= 10) ? 1.8 : 2.0;
         $hasStrongLead = ($secondProb > 0) && (($topProb / $secondProb) >= $ratioThreshold);
-        $maxQuestions = 12;
+
         $forceFinal = ($askedCount >= $maxQuestions);
-        $esFinal = $forceFinal || ($nextQId === null) || ($topProb >= $threshold) || $hasStrongLead;
+
+        // Solo terminar si se cumplen TODAS estas condiciones:
+        // 1. Se han hecho al menos el mínimo de preguntas
+        // 2. Y alguna de estas: no hay más preguntas, se alcanzó el máximo, umbral de confianza, o líder claro
+        $canFinish = $askedCount >= $minQuestions;
+        $shouldFinish = $forceFinal || ($nextQId === null) || ($topProb >= $threshold) || $hasStrongLead;
+        $esFinal = $canFinish && $shouldFinish;
 
         if ($esFinal) {
             $this->service->completePartida($partidaId);
@@ -75,7 +95,7 @@ class AlgorithmController
         foreach ($probs as $pid => $p) {
             $personajesPosibles[] = [
                 'id' => $pid,
-                'nombre' => $personajes[$pid]['nombre'] ?? (string)$pid,
+                'nombre' => $personajes[$pid]['nombre'] ?? (string) $pid,
                 'probabilidad' => round($p, 4),
             ];
         }
@@ -113,8 +133,8 @@ class AlgorithmController
             $res::json(['error' => 'Datos incompletos'], 400);
             return;
         }
-        $partidaId = (int)$partidaIdRaw;
-        $personajeId = (int)$personajeIdRaw;
+        $partidaId = (int) $partidaIdRaw;
+        $personajeId = (int) $personajeIdRaw;
         try {
             $this->service->applyCorrection($partidaId, $personajeId);
             $res::json(['ok' => true]);

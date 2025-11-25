@@ -22,19 +22,19 @@
         </div>
 
         <div class="relative z-10">
-            <div class="badge-grid mb-4">Dragon Ball Edition</div>
+            <div class="badge-grid mb-4">Edición Dragon Ball</div>
             <h1 class="title-main">
-                THINK OF A<br>
-                <span class="text-black">CHARACTER</span>
+                PIENSA EN UN<br>
+                <span class="text-black">PERSONAJE</span>
             </h1>
             <p class="text-lg font-mono mb-8 max-w-md">
-                I will guess who you are thinking of using the power of the 7 Dragon Balls.
+                Adivinaré en quién estás pensando usando el poder de las 7 Esferas del Dragón.
             </p>
 
             <form action="index.php?action=comenzar" method="post">
                 <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
                 <button class="btn-primary-grid text-xl px-8 py-4 w-full sm:w-auto" type="submit">
-                    START CHALLENGE <i class="fas fa-arrow-right ml-2"></i>
+                    COMENZAR DESAFÍO <i class="fas fa-arrow-right ml-2"></i>
                 </button>
             </form>
         </div>
@@ -51,13 +51,13 @@
 
         <div
             class="absolute bottom-0 right-0 bg-black text-white px-4 py-2 font-mono text-xs border-t-black border-l-black">
-            SYSTEM: READY
+            SISTEMA: LISTO
         </div>
     </div>
 </div>
 
 <?php if (!empty($partidaId)): ?>
     <div class="border-t-black p-2 text-center font-mono text-xs text-gray-400">
-        SESSION ID: <?= htmlspecialchars($partidaId) ?>
+        ID DE SESIÓN: <?= htmlspecialchars($partidaId) ?>
     </div>
 <?php endif; ?>

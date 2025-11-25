@@ -10,7 +10,7 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
     <!-- Header: Status -->
     <div class="grid-row bg-black text-white">
         <div class="grid-col-span-12 p-4 text-center font-mono text-sm uppercase tracking-widest">
-            Target Identified
+            Objetivo Identificado
         </div>
     </div>
 
@@ -29,18 +29,18 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
         <!-- Info Column -->
         <div class="grid-col-span-6 grid-cell flex flex-col justify-center">
             <div class="mb-6">
-                <div class="badge-grid bg-[var(--db-orange)] text-black">Match Found</div>
+                <div class="badge-grid bg-[var(--db-orange)] text-black">Coincidencia Encontrada</div>
                 <h1 class="text-5xl font-black uppercase leading-none mb-2 tracking-tighter">
                     <?= htmlspecialchars($personaje['nombre'], ENT_QUOTES, 'UTF-8') ?>
                 </h1>
                 <div class="font-mono text-xs text-gray-400 uppercase tracking-widest">
-                    Power Level Analysis Complete
+                    Análisis de Nivel de Poder Completo
                 </div>
             </div>
 
             <div class="mb-8">
                 <div class="flex justify-between text-xs font-mono uppercase mb-1">
-                    <span>Probability</span>
+                    <span>Probabilidad</span>
                     <span><?= $porcentaje ?>%</span>
                 </div>
                 <div class="progress-container-grid h-4">
@@ -50,11 +50,11 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
 
             <p class="text-lg font-bold italic leading-tight">
                 <?php if ($porcentaje >= 90): ?>
-                    "THERE IS NO DOUBT. IT IS THIS WARRIOR."
+                    "NO HAY DUDA ALGUNA. ES ESTE GUERRERO."
                 <?php elseif ($porcentaje >= 70): ?>
-                    "MY SCANNERS INDICATE A HIGH PROBABILITY."
+                    "MIS ESCÁNERES INDICAN UNA ALTA PROBABILIDAD."
                 <?php else: ?>
-                    "DATA IS UNCLEAR. IS THIS CORRECT?"
+                    "LOS DATOS NO SON CLAROS. ¿ES CORRECTO?"
                 <?php endif; ?>
             </p>
         </div>
@@ -66,13 +66,13 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
             <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
             <button class="btn-block-style w-full h-full hover:bg-[var(--db-orange)] hover:text-white border-r-black"
                 type="submit">
-                PLAY AGAIN
+                JUGAR DE NUEVO
             </button>
         </form>
 
         <form action="index.php" method="GET" class="grid-col-span-6">
             <button class="btn-block-style w-full h-full hover:bg-black hover:text-white" type="submit">
-                HOME
+                INICIO
             </button>
         </form>
     </div>
@@ -80,7 +80,7 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
     <!-- Correction Section -->
     <details class="border-t-black group">
         <summary class="p-4 text-center cursor-pointer text-xs font-mono uppercase hover:bg-gray-100 transition-colors">
-            [ INCORRECT IDENTIFICATION? CLICK TO CORRECT ]
+            [ ¿IDENTIFICACIÓN INCORRECTA? HAZ CLIC PARA CORREGIR ]
         </summary>
 
         <div class="p-8 bg-gray-50 border-t-black">
@@ -88,7 +88,7 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
             <?php if (!empty($alternativos)): ?>
                 <form action="index.php?action=corregir" method="post" class="mb-8">
                     <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
-                    <label class="text-xs font-bold uppercase block mb-2">ACTUALLY IT WAS:</label>
+                    <label class="text-xs font-bold uppercase block mb-2">EN REALIDAD ERA:</label>
                     <div class="flex gap-0">
                         <select name="personajeId" class="input-grid border-r-0 w-full">
                             <?php foreach ($alternativos as $alt): ?>
@@ -97,17 +97,18 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <button class="btn-block-style bg-black text-white border-black px-6" type="submit">FIX</button>
+                        <button class="btn-block-style bg-black text-white border-black px-6"
+                            type="submit">CORREGIR</button>
                     </div>
                 </form>
             <?php endif; ?>
 
             <form action="index.php?action=sugerir" method="post">
                 <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
-                <label class="text-xs font-bold uppercase block mb-2">SUGGEST NEW WARRIOR:</label>
+                <label class="text-xs font-bold uppercase block mb-2">SUGERIR NUEVO GUERRERO:</label>
                 <div class="flex gap-0">
-                    <input type="text" name="nombre" placeholder="NAME..." class="input-grid border-r-0 w-full">
-                    <button class="btn-block-style bg-gray-200 border-black px-6" type="submit">SEND</button>
+                    <input type="text" name="nombre" placeholder="NOMBRE..." class="input-grid border-r-0 w-full">
+                    <button class="btn-block-style bg-gray-200 border-black px-6" type="submit">ENVIAR</button>
                 </div>
             </form>
         </div>
