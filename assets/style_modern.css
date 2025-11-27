@@ -1,7 +1,9 @@
 :root {
 	/* Paleta Dragon Ball - Refined */
-	--db-orange: #ff6600; /* Más vibrante, estilo manga */
-	--db-blue: #002244; /* Azul oscuro profundo */
+	--db-orange: #ff6600;
+	/* Más vibrante, estilo manga */
+	--db-blue: #002244;
+	/* Azul oscuro profundo */
 	--db-yellow: #ffd600;
 	--db-black: #000000;
 	--db-white: #ffffff;
@@ -29,7 +31,7 @@ body {
 /* Layout Principal - Estilo Grid Suizo */
 .main-container {
 	width: 100%;
-	max-width: 1200px;
+	max-width: 100%;
 	margin: 0 auto;
 	background: var(--db-white);
 	min-height: 100vh;
@@ -43,11 +45,9 @@ body {
 /* Grid Lines Background Effect */
 .bg-grid-pattern {
 	background-size: 40px 40px;
-	background-image: linear-gradient(
-			to right,
+	background-image: linear-gradient(to right,
 			rgba(0, 0, 0, 0.05) 1px,
-			transparent 1px
-		),
+			transparent 1px),
 		linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
 }
 
@@ -125,12 +125,15 @@ h3,
 .border-b-black {
 	border-bottom: var(--grid-border-width) solid var(--grid-border-color);
 }
+
 .border-t-black {
 	border-top: var(--grid-border-width) solid var(--grid-border-color);
 }
+
 .border-l-black {
 	border-left: var(--grid-border-width) solid var(--grid-border-color);
 }
+
 .border-r-black {
 	border-right: var(--grid-border-width) solid var(--grid-border-color);
 }
@@ -140,13 +143,16 @@ h3,
 	0% {
 		transform: translateY(0px);
 	}
+
 	50% {
 		transform: translateY(-10px);
 	}
+
 	100% {
 		transform: translateY(0px);
 	}
 }
+
 .animate-float {
 	animation: float 4s ease-in-out infinite;
 }
@@ -173,14 +179,17 @@ h3,
 .grid-col-span-12 {
 	grid-column: span 12;
 }
+
 .grid-col-span-6 {
 	grid-column: span 6;
 }
+
 .grid-col-span-4 {
 	grid-column: span 4;
 }
 
 @media (max-width: 768px) {
+
 	.grid-col-span-6,
 	.grid-col-span-4 {
 		grid-column: span 12;

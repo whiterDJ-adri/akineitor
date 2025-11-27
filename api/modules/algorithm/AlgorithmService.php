@@ -22,7 +22,7 @@ class AlgorithmService
     }
 
     /**
-     * Carga personajes y preguntas de la BD y data.json
+     * Carga personajes y preguntas de la BD.
      */
     private function loadData(): void
     {
@@ -256,9 +256,18 @@ class AlgorithmService
         // Filtrar candidatos con probabilidad muy baja para optimizar
         $finalProbs = [];
         foreach ($newProbs as $id => $p) {
-            if ($p > 0.001) { // 0.1% threshold
+            if ($p > 0.0001) { // 0.01% threshold - keep more candidates longer to avoid premature elimination
                 $finalProbs[$id] = $p;
             }
+        }
+        
+        // CRITICAL: Si el filtrado eliminó TODOS los candidatos, mantener al menos el mejor
+        if (empty($finalProbs) && !empty($newProbs)) {
+            error_log("WARNING: All candidates filtered out, keeping top candidate");
+            // Encontrar el candidato con mayor probabilidad aunque sea < 0.001
+            arsort($newProbs);
+            $topId = array_key_first($newProbs);
+            $finalProbs[$topId] = 1.0; // Le damos 100% ya que es el único
         }
         
         // Renormalizar tras corte
@@ -280,12 +289,16 @@ class AlgorithmService
         // Obtener la respuesta "real" del personaje
         $expected = $this->getCharacterAnswer($charId, $questionId);
 
+        // Normalize answers to handle accent variations
+        $expected = $this->normalizeAnswer($expected);
+        $userAnswer = $this->normalizeAnswer($userAnswer);
+
         // Matriz de confusión simple
         // Fila: Respuesta Esperada, Columna: Respuesta Usuario
         // Valores: Probabilidad P(UserAnswer | TrueAnswer)
         
         // Simplificación:
-        if ($expected === 'no lo sé') return 1.0; // Si el personaje no sabe, cualquier respuesta es neutra (o 0.5)
+        if ($expected === 'no lo se') return 1.0; // Si el personaje no sabe, cualquier respuesta es neutra (o 0.5)
         
         $matchProb = 0.9; // Usuario acierta
         $mismatchProb = 0.1; // Usuario se equivoca
@@ -293,19 +306,46 @@ class AlgorithmService
         // Mapeo de respuestas a valores numéricos aproximados para distancia
         // sí=1, probablemente=0.75, no lo sé=0.5, probablemente no=0.25, no=0
         
-        if ($userAnswer === 'no lo sé') return 0.5; // Usuario no sabe, impacto bajo
+        if ($userAnswer === 'no lo se') return 0.5; // Usuario no sabe, impacto bajo
 
         $isMatch = ($expected === $userAnswer);
         
         // Manejo de "probablemente"
         if (str_contains($userAnswer, 'probablemente')) {
-            if (str_contains($userAnswer, 'sí') && $expected === 'sí') return 0.7;
+            if (str_contains($userAnswer, 'si') && $expected === 'si') return 0.7;
             if (str_contains($userAnswer, 'no') && $expected === 'no') return 0.7;
-            if ($expected === 'no lo sé') return 0.5;
+            if ($expected === 'no lo se') return 0.5;
             return 0.3; // Discrepancia suave
         }
 
         return $isMatch ? $matchProb : $mismatchProb;
+    }
+
+    /**
+     * Normalize answer to handle accent variations
+     * si/sí -> si
+     * no se/no sé/no lo sé -> no lo se
+     */
+    private function normalizeAnswer(string $answer): string
+    {
+        $answer = mb_strtolower(trim($answer));
+        
+        // Normalize accented versions
+        $answer = str_replace(['sí', 'í'], ['si', 'i'], $answer);
+        $answer = str_replace(['é'], ['e'], $answer);
+        
+        // Normalize "no sé" variations
+        if (in_array($answer, ['no se', 'no lo se', 'no se', 'no lo sé', 'no sé'])) {
+            return 'no lo se';
+        }
+        
+        // Normalize probablemente variations
+        if (str_contains($answer, 'probablemente')) {
+            if (str_contains($answer, 'si')) return 'probablemente si';
+            if (str_contains($answer, 'no')) return 'probablemente no';
+        }
+        
+        return $answer;
     }
 
     private function getCharacterAnswer(int $charId, int $questionId): string
@@ -407,6 +447,12 @@ class AlgorithmService
                 $bestId = $id;
             }
         }
+        
+        // Si no encontramos nada mejor que -1, devolver el primer candidato
+        if ($maxP < 0) {
+            $bestId = array_key_first($probs);
+        }
+        
         return $bestId;
     }
 

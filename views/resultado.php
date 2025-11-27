@@ -1,7 +1,7 @@
 <?php
 $personaje = $resultado['personaje'] ?? ['nombre' => 'Desconocido', 'imagenUrl' => null];
 $conf = isset($resultado['confianza']) ? (float) $resultado['confianza'] : 0.0;
-$porcentaje = (int) round($conf * 100);
+$porcentaje = (int) round($conf);
 $fallbackImage = 'assets/img/Shen_Long_Artwork.png';
 $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fallbackImage;
 ?>
