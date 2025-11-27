@@ -40,9 +40,9 @@ Akineitor es una aplicación web interactiva que adivina en qué personaje de Dr
 
 ## 🔗 Enlaces
 
-| Recurso | Enlace |
-|---------|--------|
-| 🌐 **Aplicación Web** | [akinator.innovux.es](https://akinator.innovux.es/) |
+| Recurso                   | Enlace                                                                                                                                                                                                                  |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🌐 **Aplicación Web**     | [akinator.innovux.es](https://akinator.innovux.es/)                                                                                                                                                                     |
 | 📊 **Presentación Figma** | [Ver Presentación](https://www.figma.com/proto/dCpebRNJ9TTk35U44q3dWx/presentacion-Dragon-ball?page-id=0%3A1&node-id=39-796&p=f&viewport=-4098%2C194%2C0.18&t=ZyJTe9W6yoNSBe6n-1&scaling=contain&content-scaling=fixed) |
 
 ---
