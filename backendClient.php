@@ -73,7 +73,7 @@ class BackendClient
         }
 
         $decodedResponse = json_decode($response, true);
-        error_log('[BackendClient] respuesta código ' . $httpCode . ' tamaño ' . strlen((string)$response));
+        error_log('[BackendClient] respuesta código ' . $httpCode . ' tamaño ' . strlen((string) $response));
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new RuntimeException("Error al decodificar respuesta JSON de la API: " . $response);
@@ -261,6 +261,64 @@ class BackendClient
             return $resp;
         } catch (Exception $e) {
             throw new RuntimeException("Error al sugerir personaje: " . $e->getMessage());
+        }
+    }
+
+    public function continuarPartida(string $partidaId): array
+    {
+        try {
+            $payload = ['partida_id' => $partidaId];
+            $response = $this->makeApiCall('/api/algorithm/continue', $payload);
+
+            $esFinal = $response['es_final'] ?? false;
+            $preguntaActual = $response['pregunta_actual'] ?? null;
+            $personajesPosibles = $response['personajes_posibles'] ?? [];
+            $probabilidad = $response['probabilidad'] ?? 0;
+            $preguntasRespondidas = $response['preguntas_respondidas'] ?? 0;
+
+            if ($esFinal) {
+                // Devolver resultado final (aunque continue debería intentar dar otra pregunta)
+                $personajePrincipal = $personajesPosibles[0] ?? null;
+
+                if (!$personajePrincipal) {
+                    throw new RuntimeException("No se pudo determinar un personaje");
+                }
+
+                return [
+                    'resultado' => [
+                        'personaje' => [
+                            'id' => $personajePrincipal['id'],
+                            'nombre' => $personajePrincipal['nombre'],
+                            'imagenUrl' => null
+                        ],
+                        'confianza' => $probabilidad,
+                        'personajes_alternativos' => array_slice($personajesPosibles, 1, 4)
+                    ]
+                ];
+            } else {
+                if (!$preguntaActual) {
+                    throw new RuntimeException("La API no devolvió una pregunta válida al continuar.");
+                }
+
+                $pregunta = [
+                    'id' => $preguntaActual['id'],
+                    'texto' => $preguntaActual['texto']
+                ];
+
+                $progreso = [
+                    'paso' => $preguntasRespondidas + 1,
+                    'total' => 12
+                ];
+
+                return [
+                    'pregunta' => $pregunta,
+                    'progreso' => $progreso,
+                    'personajes_posibles' => array_slice($personajesPosibles, 0, 5),
+                    'confianza' => $probabilidad
+                ];
+            }
+        } catch (Exception $e) {
+            throw new RuntimeException("Error al continuar partida: " . $e->getMessage());
         }
     }
 }

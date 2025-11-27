@@ -93,6 +93,7 @@ switch ($action) {
         }
         break;
 
+
     case 'reiniciar':
         if (!csrf_check($_POST['_csrf'] ?? '')) {
             http_response_code(419);
@@ -105,10 +106,7 @@ switch ($action) {
         $_SESSION['progreso'] = null;
         $_SESSION['resultado'] = null;
         $_SESSION['confianza'] = null;
-        $_SESSION['flash_error'] = null;
-
-        // Redirigir a la página de inicio limpia
-        redirect('index.php?action=home');
+        redirect('index.php');
         break;
 
     case 'corregir':
@@ -116,15 +114,17 @@ switch ($action) {
             http_response_code(419);
             die('CSRF inválido');
         }
+
         $partidaId = $_SESSION['partidaId'] ?? null;
-        $personajeId = isset($_POST['personajeId']) ? (int)$_POST['personajeId'] : null;
+        $personajeId = (int) ($_POST['personajeId'] ?? 0);
+
         if (!$partidaId || !$personajeId) {
             $_SESSION['flash_error'] = 'Datos de corrección incompletos.';
             redirect('index.php?action=home');
         }
         try {
             $api = new BackendClient();
-            $api->corregir((string)$partidaId, $personajeId);
+            $api->corregir((string) $partidaId, $personajeId);
             $_SESSION['flash_error'] = null;
         } catch (Throwable $e) {
             $_SESSION['flash_error'] = 'No se pudo aplicar la corrección.';

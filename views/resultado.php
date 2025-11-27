@@ -41,7 +41,7 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
             <div class="mb-8">
                 <div class="flex justify-between text-xs font-mono uppercase mb-1">
                     <span>Probabilidad</span>
-                    <span><?= $porcentaje ?>%</span>
+                    <span><?= ($porcentaje == 0 && $conf > 0) ? '< 1' : $porcentaje ?>%</span>
                 </div>
                 <div class="progress-container-grid h-4">
                     <div class="progress-fill-grid bg-black" style="width: <?= $porcentaje ?>%;"></div>
@@ -62,7 +62,7 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
 
     <!-- Actions Footer -->
     <div class="grid-row mt-auto">
-        <form action="index.php?action=reiniciar" method="post" class="grid-col-span-6">
+        <form action="index.php?action=reiniciar" method="POST" class="grid-col-span-4">
             <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
             <button class="btn-block-style w-full h-full hover:bg-[var(--db-orange)] hover:text-white border-r-black"
                 type="submit">
@@ -70,8 +70,16 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
             </button>
         </form>
 
-        <form action="index.php" method="GET" class="grid-col-span-6">
-            <button class="btn-block-style w-full h-full hover:bg-black hover:text-white" type="submit">
+        <form action="index.php?action=continuar" method="POST" class="grid-col-span-4">
+            <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+            <button class="btn-block-style w-full h-full hover:bg-black hover:text-white border-r-black" type="submit">
+                SEGUIR JUGANDO
+            </button>
+        </form>
+
+        <form action="index.php?action=reiniciar" method="POST" class="grid-col-span-4">
+            <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+            <button class="btn-block-style w-full h-full hover:bg-gray-800 hover:text-white" type="submit">
                 INICIO
             </button>
         </form>
@@ -86,7 +94,7 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
         <div class="p-8 bg-gray-50 border-t-black">
             <?php $alternativos = $resultado['personajes_alternativos'] ?? []; ?>
             <?php if (!empty($alternativos)): ?>
-                <form action="index.php?action=corregir" method="post" class="mb-8">
+                <form action="index.php?action=corregir" method="POST" class="mb-8">
                     <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
                     <label class="text-xs font-bold uppercase block mb-2">EN REALIDAD ERA:</label>
                     <div class="flex gap-0">
@@ -103,7 +111,7 @@ $imagenMostrar = !empty($personaje['imagenUrl']) ? $personaje['imagenUrl'] : $fa
                 </form>
             <?php endif; ?>
 
-            <form action="index.php?action=sugerir" method="post">
+            <form action="index.php?action=sugerir" method="POST">
                 <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
                 <label class="text-xs font-bold uppercase block mb-2">SUGERIR NUEVO GUERRERO:</label>
                 <div class="flex gap-0">
