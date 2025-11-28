@@ -109,6 +109,39 @@ switch ($action) {
         redirect('index.php');
         break;
 
+    case 'continuar':
+        if (!csrf_check($_POST['_csrf'] ?? '')) {
+            http_response_code(419);
+            die('CSRF inválido');
+        }
+        $partidaId = $_SESSION['partidaId'] ?? null;
+        if (!$partidaId) {
+            $_SESSION['flash_error'] = 'No hay partida activa para continuar.';
+            redirect('index.php?action=home');
+        }
+
+        try {
+            $api = new BackendClient();
+            $resp = $api->continuarPartida((string) $partidaId);
+
+            if (isset($resp['pregunta'])) {
+                $_SESSION['pregunta'] = $resp['pregunta'];
+                $_SESSION['progreso'] = $resp['progreso'] ?? null;
+                $_SESSION['confianza'] = $resp['confianza'] ?? null;
+                $_SESSION['resultado'] = null;
+            } elseif (isset($resp['resultado'])) {
+                $_SESSION['resultado'] = $resp['resultado'];
+                $_SESSION['pregunta'] = null;
+                $_SESSION['progreso'] = null;
+                $_SESSION['confianza'] = null;
+            }
+            redirect('index.php?action=home');
+        } catch (Throwable $e) {
+            $_SESSION['flash_error'] = 'No se pudo continuar la partida. ' . $e->getMessage();
+            redirect('index.php?action=home');
+        }
+        break;
+
     case 'corregir':
         if (!csrf_check($_POST['_csrf'] ?? '')) {
             http_response_code(419);

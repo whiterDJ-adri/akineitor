@@ -2,7 +2,7 @@
 
 class MySQLConnection
 {
-    private $host = "13.37.107.204";
+    private $host = "localhost";
     private $port = 3307;
     private $username = "akinator";
     private $password = "Hzk0EYeOHK42242@"; // Replace with your MySQL password
