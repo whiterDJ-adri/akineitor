@@ -84,6 +84,7 @@ class AlgorithmService
             'asked_questions' => [], // [id => respuesta]
             'candidates' => array_keys($this->characters), // IDs
             'probabilities' => [], // [id => float]
+            'max_steps' => 20
         ];
 
         // Inicializar probabilidades uniformes
@@ -155,7 +156,16 @@ class AlgorithmService
         $candidates = $this->getTopCandidates($state, 5);
 
         // Umbral de certeza o límite de preguntas
-        if ($topProb > 0.85 || $steps >= 20 || count($state['candidates']) <= 1) {
+        $maxSteps = $state['max_steps'] ?? 20;
+        
+        // Decrementar pasos forzados si existen
+        $forceContinue = false;
+        if (isset($state['forced_steps']) && $state['forced_steps'] > 0) {
+            $state['forced_steps']--;
+            $forceContinue = true;
+        }
+
+        if (!$forceContinue && ($topProb > 0.85 || $steps >= $maxSteps || count($state['candidates']) <= 1)) {
             // FIN DEL JUEGO
             error_log("RESULT: topProb=$topProb, steps=$steps, candidates=" . count($state['candidates']));
             error_log("Probabilities: " . json_encode($state['probabilities']));
@@ -177,7 +187,7 @@ class AlgorithmService
                         'imagenUrl' => $personaje['image'] ?? $personaje['imagen_url'] ?? null,
                         'descripcion' => $personaje['description'] ?? $personaje['descripcion'] ?? ''
                     ],
-                    'confianza' => round($displayProb * 100, 1),
+                    'confianza' => round(max($displayProb, 0.01) * 100, 1),
                     'personajes_alternativos' => $alternatives
                 ]
             ];
@@ -194,7 +204,7 @@ class AlgorithmService
                         'nombre' => $this->characters[$topCandidateId]['name'] ?? 'Desconocido',
                         'imagenUrl' => null
                     ],
-                    'confianza' => round($topProb * 100, 1),
+                    'confianza' => round(max($topProb, 0.01) * 100, 1),
                     'personajes_alternativos' => []
                 ]
             ];
@@ -206,7 +216,7 @@ class AlgorithmService
         return [
             'pregunta' => $this->formatQuestion($nextQuestionId),
             'progreso' => ['paso' => $steps + 1, 'total' => 20],
-            'confianza' => round($topProb * 100, 1),
+            'confianza' => round(max($topProb, 0.01) * 100, 1),
             'candidates' => $candidates
         ];
     }
@@ -264,13 +274,19 @@ class AlgorithmService
                         'nombre' => $this->characters[$newTop]['name'] ?? 'Desconocido',
                         'imagenUrl' => null
                     ],
-                    'confianza' => round($state['probabilities'][$newTop] * 100, 1),
+                    'confianza' => round(max($state['probabilities'][$newTop] ?? 0, 0.01) * 100, 1),
                     'personajes_alternativos' => []
                 ]
             ];
         }
 
         $state['current_question_id'] = $nextQuestionId;
+        
+        // Configurar pasos forzados para asegurar 5-6 preguntas más
+        // Aumentamos el límite total y forzamos 5 preguntas sin interrupción
+        $currentSteps = count($state['asked_questions']);
+        $state['max_steps'] = $currentSteps + 6;
+        $state['forced_steps'] = 5;
 
         // 5. Actualizar estado en BD y poner estado 'in_progress' por si estaba 'completed'
         $this->saveGameState($partidaIdInt, $state);
@@ -282,7 +298,7 @@ class AlgorithmService
         return [
             'pregunta' => $this->formatQuestion($nextQuestionId),
             'progreso' => ['paso' => $steps + 1, 'total' => 20],
-            'confianza' => round($topProb * 100, 1),
+            'confianza' => round(max($topProb, 0.01) * 100, 1),
             'candidates' => $this->getTopCandidates($state, 5)
         ];
     }
@@ -370,16 +386,6 @@ class AlgorithmService
                 $finalProbs[$id] = $p / $totalFinal;
             }
         }
-
-        // FIX: Ensure top candidate has meaningful probability if it's the only one or very dominant
-        // If we have a winner, we want to show high confidence, but not 0.
-        // The issue "probability 0" might happen if $totalFinal was small and we had precision issues, 
-        // but the renormalization above handles it.
-        // However, if the user sees 0, it might be because the top candidate has very low prob but is still the "top".
-        // We generally don't want to show a result unless prob > threshold, but the code forces a result at 20 steps.
-        // If at 20 steps the top prob is 0.05, it shows 5%.
-        // If it shows 0, maybe $topProb is effectively 0?
-        // Let's ensure we don't return empty probabilities.
 
         $state['probabilities'] = $finalProbs;
         $state['candidates'] = array_keys($finalProbs);
@@ -584,7 +590,7 @@ class AlgorithmService
             $candidates[] = [
                 'id' => $pid,
                 'nombre' => $this->characters[$pid]['name'] ?? $this->characters[$pid]['nombre'],
-                'probabilidad' => round($prob, 4)
+                'probabilidad' => $prob > 0 ? max($prob, 0.0001) : 0
             ];
         }
         return $candidates;

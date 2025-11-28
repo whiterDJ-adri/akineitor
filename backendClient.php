@@ -22,7 +22,7 @@ class BackendClient
         $requestUri = $_SERVER['REQUEST_URI'] ?? '';
         $basePath = strpos($requestUri, '/projecte/') === 0 ? '/projecte' : '';
 
-        $this->apiBaseUrl = $protocol . '://' . $host . $basePath . '/akineitor/api/index.php';
+        $this->apiBaseUrl = $protocol . '://' . $host . $basePath . '/api/index.php';
     }
 
     private function makeApiCall(string $endpoint, array $data = [], string $method = 'POST'): array
